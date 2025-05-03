@@ -5,7 +5,7 @@ local rayParams = RaycastParams.new()  -- Parâmetros do Raycast
 local tool = nil  -- Ferramenta atual equipada pelo jogador
 
 -- Parâmetros do Aimbot
-local fovRadius = 50 -- Definindo o raio do FOV (quanto maior, maior a área em que o aimbot procurará alvos)
+local fovRadius = 150 -- Definindo o raio do FOV (aumentei o valor para aumentar o tamanho do FOV)
 local npcAimbotActive = false  -- Controle de ativação do Aimbot para NPCs
 
 -- Função para verificar se o alvo está dentro do FOV
