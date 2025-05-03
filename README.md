@@ -31,10 +31,10 @@ title.Font = Enum.Font.GothamBold
 title.TextSize = 22
 title.Parent = frame
 
--- Ícone do Brr Brr Patapim
+-- Ícone do Brr Brr Patapim (Posicionado no topo)
 local iconButton = Instance.new("ImageButton")
 iconButton.Size = UDim2.new(0, 50, 0, 50)
-iconButton.Position = UDim2.new(0, 10, 0, 10)  -- Posição inicial do ícone no canto superior esquerdo
+iconButton.Position = UDim2.new(0, 10, 0, 10)  -- Posição inicial no canto superior esquerdo
 iconButton.BackgroundTransparency = 1
 iconButton.Image = "rbxassetid://105182366707019"  -- Coloque o ID do seu asset aqui
 iconButton.Parent = gui
