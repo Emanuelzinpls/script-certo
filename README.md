@@ -29,10 +29,16 @@ local function showFloatingWindow()
     title.TextSize = 24
     title.TextXAlignment = Enum.TextXAlignment.Center
 
+    -- Criando a área de categorias (Esp e Aimbot)
+    local categoriesFrame = Instance.new("Frame", floatingWindow)
+    categoriesFrame.Size = UDim2.new(1, 0, 0, 50)
+    categoriesFrame.Position = UDim2.new(0, 0, 0.1, 0)
+    categoriesFrame.BackgroundTransparency = 1  -- Torna transparente para não bloquear os botões
+
     -- Botão de Ativar/Desativar ESP
-    local espButton = Instance.new("TextButton", floatingWindow)
+    local espButton = Instance.new("TextButton", categoriesFrame)
     espButton.Size = UDim2.new(0, 120, 0, 40)
-    espButton.Position = UDim2.new(0.5, -130, 0.6, 0)
+    espButton.Position = UDim2.new(0, 10, 0, 0)
     espButton.Text = "Ativar ESP"
     espButton.TextColor3 = Color3.new(1, 1, 1)
     espButton.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
@@ -44,9 +50,9 @@ local function showFloatingWindow()
     end)
 
     -- Botão de Ativar/Desativar Aimbot
-    local aimbotButton = Instance.new("TextButton", floatingWindow)
+    local aimbotButton = Instance.new("TextButton", categoriesFrame)
     aimbotButton.Size = UDim2.new(0, 120, 0, 40)
-    aimbotButton.Position = UDim2.new(0.5, -130, 0.7, 0)
+    aimbotButton.Position = UDim2.new(0, 140, 0, 0)
     aimbotButton.Text = "Ativar Aimbot"
     aimbotButton.TextColor3 = Color3.new(1, 1, 1)
     aimbotButton.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
@@ -56,7 +62,11 @@ local function showFloatingWindow()
         aimbotEnabled = not aimbotEnabled
         aimbotButton.Text = aimbotEnabled and "Desativar Aimbot" or "Ativar Aimbot"
     end)
-end
 
--- Exibe a tela flutuante assim que o script iniciar
-showFloatingWindow()
+    -- Botão de minimizar
+    local minimizeButton = Instance.new("TextButton", floatingWindow)
+    minimizeButton.Size = UDim2.new(0, 40, 0, 40)
+    minimizeButton.Position = UDim2.new(1, -40, 0, 0)
+    minimizeButton.Text = "-"
+    minimizeButton.TextColor3 = Color3.new(1, 1, 1)
+    minimizeButton.BackgroundColor3 = Color3.fromRGB(40,
