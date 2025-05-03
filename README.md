@@ -106,38 +106,34 @@ minimizeIcon.MouseButton1Click:Connect(togglePanel)
 -- Função para desenhar o esqueleto (esqueleto do personagem)
 local function drawSkeleton(character)
     if character and character:FindFirstChild("Humanoid") then
-        for _, part in pairs(character:GetChildren()) do
-            if part:IsA("MeshPart") then
-                -- Desenhar linhas conectando as partes do corpo
-                local startPos = part.Position
-                for _, nextPart in pairs(character:GetChildren()) do
-                    if nextPart:IsA("MeshPart") and nextPart ~= part then
-                        local endPos = nextPart.Position
-                        
-                        -- Criar uma linha (Line) entre as partes para representar o esqueleto
-                        local line = Instance.new("LineHandleAdornment")
-                        line.Parent = workspace
-                        line.Adornee = part
-                        line.WorldPosition = startPos
-                        line.WorldPosition = endPos
-                        line.Thickness = 0.2  -- Espessura da linha
-                        line.Color3 = Color3.fromRGB(0, 255, 0)  -- Cor verde para o esqueleto
+        -- Conectar as partes do corpo do personagem para desenhar um esqueleto
+        local humanoid = character:FindFirstChild("Humanoid")
+        
+        -- Listar as partes do corpo que queremos conectar
+        local parts = {
+            "Head", "UpperTorso", "LowerTorso", "LeftLeg", "RightLeg", "LeftArm", "RightArm"
+        }
+
+        -- Desenhar linhas entre as partes
+        for i, partName in ipairs(parts) do
+            local part = character:FindFirstChild(partName)
+            if part then
+                for j, nextPartName in ipairs(parts) do
+                    if i ~= j then
+                        local nextPart = character:FindFirstChild(nextPartName)
+                        if nextPart then
+                            -- Desenhar a linha entre as partes
+                            local line = Instance.new("LineHandleAdornment")
+                            line.Parent = workspace
+                            line.Adornee = part
+                            line.WorldPosition = part.Position
+                            line.WorldPosition = nextPart.Position
+                            line.Thickness = 0.2
+                            line.Color3 = Color3.fromRGB(0, 255, 0)  -- Cor verde para o esqueleto
+                        end
                     end
                 end
             end
-        end
-    end
-end
-
--- Função para criar Wallhack (tornar o jogador semi-transparente)
-local function wallhack(character)
-    if character then
-        local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
-        if humanoidRootPart then
-            -- Tornar o personagem semi-transparente para "wallhack"
-            humanoidRootPart.LocalTransparencyModifier = 0.5  -- Torna o jogador semi-transparente
-            wait(10)  -- Aguarda 10 segundos antes de resetar a transparência
-            humanoidRootPart.LocalTransparencyModifier = 0  -- Reset após 10 segundos
         end
     end
 end
