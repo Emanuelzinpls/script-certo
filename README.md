@@ -5,7 +5,6 @@ local rayParams = RaycastParams.new()  -- Parâmetros do Raycast
 
 -- Parâmetros do Aimbot
 local fovRadius = 50 -- Definindo o raio do FOV (quanto maior, maior a área em que o aimbot procurará alvos)
-local aimbotActive = false -- Controle de ativação do Aimbot
 local npcAimbotActive = false  -- Controle de ativação do Aimbot para NPCs
 
 -- Função para verificar se o alvo está dentro do FOV
@@ -19,50 +18,19 @@ local function isInFOV(targetPosition)
     return dotProduct > math.cos(math.rad(fovRadius)) -- Se estiver dentro do FOV
 end
 
--- Função do Aimbot com Câmera Livre e FOV
-local function aimbot()
-    local mouse = player:GetMouse()
-    local target = nil
-    local closestDistance = math.huge
+-- Função para criar o círculo do FOV na tela
+local function createFOVCircle()
+    local fovCircle = Instance.new("Frame")
+    fovCircle.Size = UDim2.new(0, fovRadius * 2, 0, fovRadius * 2)  -- O tamanho do círculo é o dobro do raio
+    fovCircle.Position = UDim2.new(0.5, -fovRadius, 0.5, -fovRadius)  -- Centraliza o círculo na tela
+    fovCircle.AnchorPoint = Vector2.new(0.5, 0.5)  -- Centraliza o ponto de ancoragem
+    fovCircle.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    fovCircle.BackgroundTransparency = 0.5  -- Define uma transparência para o círculo
+    fovCircle.BorderSizePixel = 2
+    fovCircle.BorderColor3 = Color3.fromRGB(255, 0, 0)  -- Cor da borda do círculo
+    fovCircle.Parent = player.PlayerGui:WaitForChild("ScreenGui")
 
-    -- Encontra o alvo mais próximo (outro jogador da equipe adversária)
-    for _, otherPlayer in pairs(game.Players:GetPlayers()) do
-        if otherPlayer ~= player and otherPlayer.Team.Name ~= player.Team.Name then
-            local targetCharacter = otherPlayer.Character
-            if targetCharacter and targetCharacter:FindFirstChild("HumanoidRootPart") then
-                local targetPosition = targetCharacter.HumanoidRootPart.Position
-
-                -- Verifica se o alvo está dentro do FOV
-                if isInFOV(targetPosition) then
-                    local distance = (mouse.Hit.p - targetPosition).Magnitude
-                    if distance < closestDistance then
-                        target = targetCharacter
-                        closestDistance = distance
-                    end
-                end
-            end
-        end
-    end
-
-    -- Mira para o alvo mais próximo dentro do FOV
-    if target then
-        local humanoidRootPart = player.Character:FindFirstChild("HumanoidRootPart")
-        if humanoidRootPart then
-            local direction = (target.HumanoidRootPart.Position - humanoidRootPart.Position).unit
-            local ray = Ray.new(humanoidRootPart.Position, direction * 1000)  -- Define o alcance da mira
-            rayParams.FilterDescendantsInstances = {player.Character}  -- Ignora o próprio jogador para não detectar ele mesmo
-
-            -- Realiza o Raycast, ignorando as colisões
-            local hitPart, hitPosition = workspace:Raycast(humanoidRootPart.Position, direction * 1000, rayParams)
-
-            -- Verifica se o raycast atingiu algo
-            if hitPart then
-                -- Aqui você pode simular o disparo ou a ação de atirar
-                print(player.Name .. " está mirando em " .. target.Name)
-                -- Exemplo de disparo (adicione a lógica de disparo do jogo aqui)
-            end
-        end
-    end
+    return fovCircle
 end
 
 -- Função do Aimbot para NPCs
@@ -97,8 +65,8 @@ local function npcAimbot()
             -- Realiza o Raycast, ignorando as colisões
             local hitPart, hitPosition = workspace:Raycast(humanoidRootPart.Position, direction * 1000, rayParams)
 
-            -- Verifica se o raycast atingiu algo
-            if hitPart then
+            -- Verifica se o raycast atingiu o NPC
+            if hitPart and hitPart.Parent == target then
                 -- Aqui você pode simular o disparo ou a ação de atirar
                 print(player.Name .. " está mirando no NPC: " .. target.Name)
                 -- Exemplo de disparo (adicione a lógica de disparo do jogo aqui)
@@ -162,7 +130,7 @@ npcAimbotButton.Parent = frame
 
 -- Função para ativar/desativar o Aimbot para NPCs
 npcAimbotButton.MouseButton1Click:Connect(function()
-    npcAimbotActive = not npcAimbotActive  -- Alterna o estado do Aimbot para NPCs
+    npcAimbotActive = not npcAimbotActive  -- Alterna o estado do Aimbot
     if npcAimbotActive then
         npcAimbotButton.Text = "Desativar Aimbot NPC"
         print("Aimbot NPC Ativado")
@@ -172,12 +140,13 @@ npcAimbotButton.MouseButton1Click:Connect(function()
     end
 end)
 
--- Função para rodar o Aimbot enquanto ele estiver ativado
-game:GetService("RunService").RenderStepped:Connect(function()
-    if aimbotActive then
-        aimbot()  -- Chama a função do Aimbot para jogadores adversários
-    end
+-- Criação do FOV
+createFOVCircle()
+
+-- A cada 0.1 segundos, verifica o aimbot para NPCs
+while true do
     if npcAimbotActive then
-        npcAimbot()  -- Chama a função do Aimbot para NPCs
+        npcAimbot()  -- Chama a função do aimbot para NPCs
     end
-end)
+    wait(0.1)
+end
