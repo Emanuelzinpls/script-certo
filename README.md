@@ -107,7 +107,7 @@ game:GetService("RunService").RenderStepped:Connect(function()
     end
 end)
 
--- Função do Aimbot
+-- Função do Aimbot com Câmera Livre
 local function aimbot()
     local mouse = player:GetMouse()
     local target = nil
@@ -127,7 +127,7 @@ local function aimbot()
         end
     end
 
-    -- Mira para o alvo mais próximo
+    -- Mira para o alvo mais próximo sem mexer na câmera
     if target then
         local humanoidRootPart = player.Character:FindFirstChild("HumanoidRootPart")
         if humanoidRootPart then
@@ -135,9 +135,6 @@ local function aimbot()
             local ray = Ray.new(humanoidRootPart.Position, direction * 1000)  -- Define o alcance da mira
             local hitPart, hitPosition = workspace:FindPartOnRay(ray, player.Character)
 
-            -- Atualizando a posição do mouse para mirar no alvo
-            camera.CFrame = CFrame.new(camera.CFrame.Position, target.HumanoidRootPart.Position)
-            
             -- Exemplo de ação de disparo
             print(player.Name .. " está mirando em " .. target.Name)
         end
