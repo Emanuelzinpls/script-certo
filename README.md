@@ -1,8 +1,8 @@
--- Criando o painel flutuante "Xurrasco"
+-- Criando a interface flutuante
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 
--- Criar uma interface de usuário flutuante
+-- Criar a GUI principal
 local gui = Instance.new("ScreenGui")
 gui.Name = "XurrascoPanel"
 gui.ResetOnSpawn = false
@@ -18,7 +18,7 @@ frame.BackgroundTransparency = 0.5
 frame.Active = true
 frame.Draggable = true  -- Permite mover o painel
 frame.Parent = gui
-frame.Visible = true  -- Inicialmente, o painel está visível
+frame.Visible = false  -- Inicialmente, o painel está oculto
 
 -- Imagem de fundo do painel
 local bg = Instance.new("ImageLabel")
@@ -40,7 +40,7 @@ title.Font = Enum.Font.GothamBold
 title.TextSize = 22
 title.Parent = frame
 
--- Função para criar botões
+-- Função para criar botões dentro do painel
 local function createButton(text, yPos, callback)
     local button = Instance.new("TextButton")
     button.Size = UDim2.new(1, -20, 0, 40)
@@ -68,20 +68,19 @@ minimizeIcon.Image = "rbxassetid://105182366707019"  -- Ícone do meme "brr brr 
 minimizeIcon.Visible = true
 minimizeIcon.Parent = gui
 
--- Função para minimizar o painel e esconder o ícone
-local function minimizePanel()
-    frame.Visible = false  -- Oculta o painel
-    minimizeIcon.Visible = true  -- Exibe o ícone para restaurar
+-- Função para alternar o painel (minimizar/restaurar)
+local function togglePanel()
+    if frame.Visible then
+        frame.Visible = false  -- Minimiza o painel
+        minimizeIcon.Visible = true  -- Exibe o ícone quando o painel for minimizado
+    else
+        frame.Visible = true  -- Restaura o painel
+        minimizeIcon.Visible = false  -- Oculta o ícone quando o painel for restaurado
+    end
 end
 
--- Função para restaurar o painel ao clicar no ícone
-local function restorePanel()
-    frame.Visible = true  -- Exibe o painel novamente
-    minimizeIcon.Visible = false  -- Oculta o ícone após restaurar o painel
-end
-
--- Conecta o clique no ícone ao evento de restaurar o painel
-minimizeIcon.MouseButton1Click:Connect(restorePanel)
+-- Conecta o clique no ícone ao evento de alternar o painel
+minimizeIcon.MouseButton1Click:Connect(togglePanel)
 
 -- Função para exibir o painel de funções
 createButton("Função ESP", 50, function()
@@ -110,16 +109,4 @@ frame.MouseButton1Down:Connect(function(input)
     frame.MouseButton1Up:Connect(function()
         dragging = false
     end)
-end)
-
--- Exibir painel novamente ao pressionar F6
-local UserInputService = game:GetService("UserInputService")
-UserInputService.InputBegan:Connect(function(input, processed)
-    if not processed and input.KeyCode == Enum.KeyCode.F6 then
-        if frame.Visible then
-            minimizePanel()  -- Minimiza o painel ao pressionar F6
-        else
-            restorePanel()  -- Restaura o painel ao pressionar F6
-        end
-    end
 end)
