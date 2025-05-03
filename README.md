@@ -34,10 +34,14 @@ title.Parent = frame
 -- Ícone do Brr Brr Patapim
 local iconButton = Instance.new("ImageButton")
 iconButton.Size = UDim2.new(0, 50, 0, 50)
-iconButton.Position = UDim2.new(0, 10, 0, 10)  -- Posição do ícone no canto superior esquerdo
+iconButton.Position = UDim2.new(0, 10, 0, 10)  -- Posição inicial do ícone no canto superior esquerdo
 iconButton.BackgroundTransparency = 1
 iconButton.Image = "rbxassetid://105182366707019"  -- Coloque o ID do seu asset aqui
 iconButton.Parent = gui
+
+-- Permitir que o ícone seja movido pela tela
+iconButton.Active = true  -- Habilita a interatividade do ícone
+iconButton.Draggable = true  -- Permite mover o ícone
 
 -- Funcionalidade para abrir e minimizar o painel ao clicar no ícone
 iconButton.MouseButton1Click:Connect(function()
@@ -55,86 +59,4 @@ wallhackButton.TextSize = 18
 wallhackButton.TextColor3 = Color3.new(1, 1, 1)
 wallhackButton.Parent = frame
 
--- Função para ativar/desativar o Wallhack
-local wallhackActive = false  -- Controle de ativação do Wallhack
-wallhackButton.MouseButton1Click:Connect(function()
-    wallhackActive = not wallhackActive
-    if wallhackActive then
-        wallhackButton.Text = "Desativar Wallhack"
-        print("Wallhack Ativado")
-    else
-        wallhackButton.Text = "Ativar Wallhack"
-        print("Wallhack Desativado")
-    end
-end)
-
--- Função para tornar os jogadores visíveis atrás das paredes e deixá-los de cor preta forte
-local function wallhack(character)
-    if character then
-        local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
-        local humanoid = character:FindFirstChild("Humanoid")
-        
-        if humanoidRootPart and humanoid then
-            -- Tornar o personagem semi-transparente para "wallhack"
-            for _, part in pairs(character:GetChildren()) do
-                if part:IsA("MeshPart") or part:IsA("Part") then
-                    -- Define a cor preta bem forte e destacada
-                    part.BrickColor = BrickColor.new("Really black")  -- Usando a cor "Really black" que é o preto mais forte
-                    part.Transparency = 0.5  -- Aplica transparência para ver através das paredes
-                end
-            end
-        end
-    end
-end
-
--- Função para criar a barra de vida dos jogadores
-local function createHealthBar(character)
-    if character and character:FindFirstChild("Humanoid") then
-        local humanoid = character:FindFirstChild("Humanoid")
-        
-        -- Criar a barra de vida
-        local healthBar = Instance.new("BillboardGui")
-        healthBar.Adornee = character.HumanoidRootPart
-        healthBar.Size = UDim2.new(0, 100, 0, 10)
-        healthBar.StudsOffset = Vector3.new(0, 2, 0)
-        healthBar.Parent = character.HumanoidRootPart
-        
-        local bar = Instance.new("Frame")
-        bar.Size = UDim2.new(1, 0, 1, 0)
-        bar.BackgroundColor3 = Color3.fromRGB(0, 255, 0)  -- Cor inicial da barra de vida
-        bar.Parent = healthBar
-
-        -- Atualizar a barra de vida com o valor atual de saúde
-        humanoid.HealthChanged:Connect(function()
-            local healthPercentage = humanoid.Health / humanoid.MaxHealth
-            bar.Size = UDim2.new(healthPercentage, 0, 1, 0)
-
-            -- Se a saúde for baixa, a barra ficará vermelha
-            if humanoid.Health / humanoid.MaxHealth < 0.3 then
-                bar.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
-            else
-                bar.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
-            end
-        end)
-    end
-end
-
--- Função para aplicar Wallhack e barra de vida
-local function applyWallhackAndHealthBar()
-    for _, otherPlayer in pairs(game.Players:GetPlayers()) do
-        if otherPlayer.Character and otherPlayer ~= player then
-            -- Aplica o Wallhack
-            wallhack(otherPlayer.Character)
-            
-            -- Cria a barra de vida
-            createHealthBar(otherPlayer.Character)
-        end
-    end
-end
-
--- Função para ativar o Wallhack enquanto o jogador estiver na partida
-game:GetService("RunService").RenderStepped:Connect(function()
-    if wallhackActive then
-        applyWallhackAndHealthBar()  -- Aplica o wallhack e a barra de vida a cada frame
-    end
-end)
+-- Função para ativar
