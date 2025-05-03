@@ -74,45 +74,42 @@ end
 -- Conecta o clique no ícone ao evento de alternar o painel
 minimizeIcon.MouseButton1Click:Connect(togglePanel)
 
--- Função para desenhar uma linha fixa entre o jogador e o outro jogador
-local function drawFixedLineToPlayer(character)
-    if character and character:FindFirstChild("HumanoidRootPart") then
-        -- Criar uma linha entre o jogador e o outro jogador
-        local rootPart = character.HumanoidRootPart
-        local distance = (rootPart.Position - player.Character.HumanoidRootPart.Position).Magnitude
+-- Função para desenhar a barra de vida do jogador
+local function drawHealthBar(character)
+    if character and character:FindFirstChild("Humanoid") then
+        local humanoid = character.Humanoid
+        local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
         
-        -- Criando o part que será a linha
-        local line = Instance.new("Part")
-        line.Size = Vector3.new(0.1, 0.1, distance)  -- A espessura da linha é 0.1
-        line.CFrame = CFrame.new(player.Character.HumanoidRootPart.Position, rootPart.Position) * CFrame.new(0, 0, -distance / 2)
-        line.Anchored = true
-        line.CanCollide = false
-        line.Color = Color3.fromRGB(255, 0, 0)  -- Linha vermelha
-        line.Parent = game.Workspace
+        -- Criar uma barra de vida
+        local healthBarBackground = Instance.new("Frame")
+        healthBarBackground.Size = UDim2.new(0, 100, 0, 10)
+        healthBarBackground.Position = UDim2.new(0, -50, 0, -20)  -- Acima do personagem
+        healthBarBackground.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+        healthBarBackground.BackgroundTransparency = 0.5
+        healthBarBackground.Parent = character
         
-        -- Exibindo a distância na tela
-        local distanceLabel = Instance.new("TextLabel")
-        distanceLabel.Text = math.floor(distance) .. " metros"
-        distanceLabel.Position = UDim2.new(0.5, -50, 0.5, -100)
-        distanceLabel.Size = UDim2.new(0, 100, 0, 40)
-        distanceLabel.TextColor3 = Color3.fromRGB(255, 0, 0)
-        distanceLabel.BackgroundTransparency = 1
-        distanceLabel.Font = Enum.Font.GothamBold
-        distanceLabel.TextSize = 18
-        distanceLabel.Parent = gui
+        local healthBar = Instance.new("Frame")
+        healthBar.Size = UDim2.new(humanoid.Health / humanoid.MaxHealth, 0, 1, 0)  -- Tamanho de acordo com a vida
+        healthBar.BackgroundColor3 = Color3.fromRGB(255, 0, 0)  -- Cor vermelha
+        healthBar.Parent = healthBarBackground
         
-        -- Deletar a linha e o label após 1 segundo
-        wait(1)
-        line:Destroy()
-        distanceLabel:Destroy()
+        -- Atualizar a barra de vida com base na saúde
+        humanoid.HealthChanged:Connect(function()
+            healthBar.Size = UDim2.new(humanoid.Health / humanoid.MaxHealth, 0, 1, 0)  -- Atualiza tamanho conforme a vida
+        end)
+        
+        -- A barra de vida é removida quando o personagem morre
+        humanoid.Died:Connect(function()
+            healthBarBackground:Destroy()
+        end)
     end
 end
 
 -- Função principal ESP para ativar o Wallhack e mostrar os players
 local function Esp(character)
     if character and character:FindFirstChild("HumanoidRootPart") then
-        -- Desenhar linha fixa entre o jogador local e o outro jogador
-        drawFixedLineToPlayer(character)
+        -- Desenhar a barra de vida do jogador
+        drawHealthBar(character)
     end
 end
 
