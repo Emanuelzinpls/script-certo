@@ -57,63 +57,15 @@ local function createButton(text, yPos, callback)
     button.MouseButton1Click:Connect(callback)
 end
 
--- Função de ESP para mostrar jogadores próximos
-createButton("👀 Ver Jogadores Próximos", 50, function()
-    for _, player in ipairs(Players:GetPlayers()) do
-        if player ~= LocalPlayer and player.Character and player.Character:FindFirstChild("Head") then
-            local billboard = Instance.new("BillboardGui")
-            billboard.Name = "DebugNameTag"
-            billboard.Adornee = player.Character.Head
-            billboard.Size = UDim2.new(0, 200, 0, 50)
-            billboard.StudsOffset = Vector3.new(0, 2, 0)
-            billboard.AlwaysOnTop = true
-            billboard.Parent = player.Character
+-- Botão de Minimizar no topo
+local minimizeButton = Instance.new("TextButton")
+minimizeButton.Size = UDim2.new(0, 100, 0, 40)
+minimizeButton.Position = UDim2.new(1, -110, 0, 0)
+minimizeButton.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+minimizeButton.TextColor3 = Color3.new(1, 1, 1)
+minimizeButton.Text = "🗕 Minimizar"
+minimizeButton.Font = Enum.Font.Gotham
+minimizeButton.TextSize = 16
+minimizeButton.Parent = frame
 
-            local label = Instance.new("TextLabel")
-            label.Size = UDim2.new(1, 0, 1, 0)
-            label.BackgroundTransparency = 1
-            label.Text = "👤 " .. player.Name
-            label.TextColor3 = Color3.new(1, 1, 1)
-            label.Font = Enum.Font.Gotham
-            label.TextScaled = true
-            label.Parent = billboard
-        end
-    end
-end)
-
--- Análise de movimento
-createButton("📈 Análise de Movimento", 100, function()
-    local char = LocalPlayer.Character
-    if not char then return end
-    local root = char:FindFirstChild("HumanoidRootPart")
-    if not root then return end
-
-    -- Exibir velocidade e movimento do jogador
-    game.StarterGui:SetCore("ChatMakeSystemMessage", {
-        Text = "[DEBUG] Velocidade atual: " .. tostring(root.Velocity.Magnitude),
-        Color = Color3.fromRGB(0, 200, 255)
-    })
-end)
-
--- Simular aimbot (só para visualização)
-createButton("🎯 Simular Aimbot", 150, function()
-    local target = workspace:FindFirstChild("AimbotTarget")
-    if target and target:IsA("Model") then
-        local camera = workspace.CurrentCamera
-        camera.CameraSubject = target
-        camera.CFrame = target.PrimaryPart.CFrame
-    end
-end)
-
--- Minimizar painel
-createButton("🗕 Minimizar", 200, function()
-    frame.Visible = false
-end)
-
--- Exibir painel novamente ao pressionar F6
-local UserInputService = game:GetService("UserInputService")
-UserInputService.InputBegan:Connect(function(input, processed)
-    if not processed and input.KeyCode == Enum.KeyCode.F6 then
-        frame.Visible = not frame.Visible
-    end
-end)
+local uicornerMin = Instance.new("
