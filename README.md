@@ -18,6 +18,7 @@ frame.BackgroundTransparency = 0.5
 frame.Active = true
 frame.Draggable = true
 frame.Parent = gui
+frame.Visible = true  -- Garantir que o painel comece visível
 
 -- Imagem de fundo do painel
 local bg = Instance.new("ImageLabel")
@@ -99,6 +100,17 @@ game:GetService("UserInputService").InputChanged:Connect(function(input)
         local delta = input.Position - dragStart
         minimizeIcon.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
     end
+end)
+
+-- Função para exibir o painel de funções
+createButton("Função ESP", 50, function()
+    print("Função ESP ativada")
+    -- Insira seu código de ESP aqui
+end)
+
+createButton("Função Aimbot", 100, function()
+    print("Função Aimbot ativada")
+    -- Insira seu código de Aimbot aqui
 end)
 
 -- Exibir painel novamente ao pressionar F6
