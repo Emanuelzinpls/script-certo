@@ -39,9 +39,9 @@ iconButton.BackgroundTransparency = 1
 iconButton.Image = "rbxassetid://105182366707019"  -- Coloque o ID do seu asset aqui
 iconButton.Parent = gui
 
--- Permitir que o ícone seja movido pela tela
-iconButton.Active = true  -- Habilita a interatividade do ícone
-iconButton.Draggable = true  -- Permite mover o ícone
+-- Desabilitar a funcionalidade de arrastar o ícone
+iconButton.Active = true  -- Permite interação, mas sem a capacidade de mover
+iconButton.Draggable = false  -- Desabilita o movimento do ícone
 
 -- Funcionalidade para abrir e minimizar o painel ao clicar no ícone
 iconButton.MouseButton1Click:Connect(function()
