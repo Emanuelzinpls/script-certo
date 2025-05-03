@@ -99,31 +99,28 @@ local function drawESP(character)
     end
 end
 
--- Função para criar Wallhack (tornar o jogador semi-transparente)
-local function wallhack(character)
-    if character then
-        local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
-        if humanoidRootPart then
-            -- Tornar o personagem semi-transparente para "wallhack"
-            humanoidRootPart.LocalTransparencyModifier = 0.5  -- Torna o jogador semi-transparente
-            wait(10)  -- Aguarda 10 segundos antes de resetar a transparência
-            humanoidRootPart.LocalTransparencyModifier = 0  -- Reset após 10 segundos
+-- Função principal para ativar o ESP em jogadores
+game:GetService("RunService").RenderStepped:Connect(function()
+    for _, otherPlayer in pairs(game.Players:GetPlayers()) do
+        if otherPlayer.Character and otherPlayer ~= player then
+            -- Chamar função para desenhar o ESP
+            drawESP(otherPlayer.Character)
         end
     end
-end
+end)
 
 -- Função para desenhar o esqueleto (esqueleto do personagem)
 local function drawSkeleton(character)
     if character and character:FindFirstChild("Humanoid") then
         for _, part in pairs(character:GetChildren()) do
             if part:IsA("MeshPart") then
-                -- Desenhar linhas conectando as partes do personagem para formar o esqueleto
+                -- Desenhar linhas conectando as partes do corpo
                 local startPos = part.Position
                 for _, nextPart in pairs(character:GetChildren()) do
                     if nextPart:IsA("MeshPart") and nextPart ~= part then
                         local endPos = nextPart.Position
                         
-                        -- Criar um "Line" (Linha) entre as partes para representar o esqueleto
+                        -- Criar uma linha (Line) entre as partes para representar o esqueleto
                         local line = Instance.new("LineHandleAdornment")
                         line.Parent = workspace
                         line.Adornee = part
@@ -138,40 +135,26 @@ local function drawSkeleton(character)
     end
 end
 
--- Função principal Esp que chama os outros métodos
+-- Função para criar Wallhack (tornar o jogador semi-transparente)
+local function wallhack(character)
+    if character then
+        local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
+        if humanoidRootPart then
+            -- Tornar o personagem semi-transparente para "wallhack"
+            humanoidRootPart.LocalTransparencyModifier = 0.5  -- Torna o jogador semi-transparente
+            wait(10)  -- Aguarda 10 segundos antes de resetar a transparência
+            humanoidRootPart.LocalTransparencyModifier = 0  -- Reset após 10 segundos
+        end
+    end
+end
+
+-- Função principal ESP que chama os outros métodos
 local function Esp(character)
     if character and character:FindFirstChild("HumanoidRootPart") then
         -- Chama as funções
         drawESP(character)    -- Desenha a caixa ESP
         wallhack(character)   -- Ativa o wallhack
         drawSkeleton(character)  -- Desenha o esqueleto do jogador
-    end
-end
-
--- Função para o Aimbot
-local function Aimbot()
-    local target = nil
-    local shortestDistance = math.huge
-
-    for _, v in pairs(game.Players:GetPlayers()) do
-        if v.Character and v.Character:FindFirstChild("HumanoidRootPart") and v.Team ~= player.Team then
-            local dist = (v.Character.HumanoidRootPart.Position - camera.CFrame.p).Magnitude
-            if dist < shortestDistance then
-                target = v
-                shortestDistance = dist
-            end
-        end
-    end
-
-    if target and target.Character then
-        local targetPos = target.Character.HumanoidRootPart.Position
-        local bodyGyro = Instance.new("BodyGyro")
-        bodyGyro.MaxTorque = Vector3.new(4000, 4000, 4000)
-        bodyGyro.CFrame = CFrame.new(camera.CFrame.p, targetPos)
-        bodyGyro.Parent = camera
-
-        -- Ajuste do tiro (se você tem um mecanismo de disparo, pode ativar isso aqui)
-        -- Exemplo de disparo: game.ReplicatedStorage:FireServer()
     end
 end
 
@@ -182,7 +165,11 @@ game.Players.PlayerAdded:Connect(function(player)
     end)
 end)
 
--- Executar Aimbot a cada 1 segundo
-while wait(1) do
-    Aimbot()
-end
+-- Para exibir o ESP enquanto o jogador estiver na partida
+game:GetService("RunService").RenderStepped:Connect(function()
+    for _, otherPlayer in pairs(game.Players:GetPlayers()) do
+        if otherPlayer.Character and otherPlayer ~= player then
+            Esp(otherPlayer.Character)  -- Atualiza o ESP a cada frame
+        end
+    end
+end)
