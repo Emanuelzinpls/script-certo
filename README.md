@@ -149,46 +149,35 @@ iconButton.MouseButton1Click:Connect(function()
     frame.Visible = not frame.Visible  -- Alterna a visibilidade do painel
 end)
 
--- Botão para ativar/desativar o Wallhack
-local wallhackButton = Instance.new("TextButton")
-wallhackButton.Size = UDim2.new(0, 150, 0, 40)
-wallhackButton.Position = UDim2.new(0.5, -75, 0, 60)
-wallhackButton.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
-wallhackButton.Text = "Ativar Wallhack"
-wallhackButton.Font = Enum.Font.GothamBold
-wallhackButton.TextSize = 18
-wallhackButton.TextColor3 = Color3.new(1, 1, 1)
-wallhackButton.Parent = frame
+-- Botão para ativar/desativar o Aimbot para NPCs
+local npcAimbotButton = Instance.new("TextButton")
+npcAimbotButton.Size = UDim2.new(0, 150, 0, 40)
+npcAimbotButton.Position = UDim2.new(0.5, -75, 0, 180)
+npcAimbotButton.BackgroundColor3 = Color3.fromRGB(0, 0, 255)  -- Cor do botão
+npcAimbotButton.Text = "Ativar Aimbot NPC"
+npcAimbotButton.Font = Enum.Font.GothamBold
+npcAimbotButton.TextSize = 18
+npcAimbotButton.TextColor3 = Color3.new(1, 1, 1)
+npcAimbotButton.Parent = frame
 
--- Função para ativar/desativar o Wallhack
-local wallhackActive = false  -- Controle de ativação do Wallhack
-wallhackButton.MouseButton1Click:Connect(function()
-    wallhackActive = not wallhackActive
-    if wallhackActive then
-        wallhackButton.Text = "Desativar Wallhack"
-        print("Wallhack Ativado")
+-- Função para ativar/desativar o Aimbot para NPCs
+npcAimbotButton.MouseButton1Click:Connect(function()
+    npcAimbotActive = not npcAimbotActive  -- Alterna o estado do Aimbot para NPCs
+    if npcAimbotActive then
+        npcAimbotButton.Text = "Desativar Aimbot NPC"
+        print("Aimbot NPC Ativado")
     else
-        wallhackButton.Text = "Ativar Wallhack"
-        print("Wallhack Desativado")
+        npcAimbotButton.Text = "Ativar Aimbot NPC"
+        print("Aimbot NPC Desativado")
     end
 end)
 
--- Função para aplicar o Wallhack
-local function applyWallhack()
-    for _, otherPlayer in pairs(game.Players:GetPlayers()) do
-        if otherPlayer.Character and otherPlayer ~= player then
-            -- Chama a função para tornar o jogador visível atrás das paredes e preto
-            wallhack(otherPlayer.Character)
-        end
+-- Função para rodar o Aimbot enquanto ele estiver ativado
+game:GetService("RunService").RenderStepped:Connect(function()
+    if aimbotActive then
+        aimbot()  -- Chama a função do Aimbot para jogadores adversários
     end
-end
-
--- Botão para ativar/desativar o Aimbot
-local aimbotButton = Instance.new("TextButton")
-aimbotButton.Size = UDim2.new(0, 150, 0, 40)
-aimbotButton.Position = UDim2.new(0.5, -75, 0, 120)
-aimbotButton.BackgroundColor3 = Color3.fromRGB(0, 0, 255)  -- Cor do botão
-aimbotButton.Text = "Ativar Aimbot"
-aimbotButton.Font = Enum.Font.GothamBold
-aimbotButton.TextSize = 18
-aimbotButton.TextColor3 = Color3.new(1,
+    if npcAimbotActive then
+        npcAimbot()  -- Chama a função do Aimbot para NPCs
+    end
+end)
