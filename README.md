@@ -115,33 +115,11 @@ local function wallhack(character)
     end
 end
 
--- Função para desenhar a seta acima do jogador
-local function drawArrow(character)
-    if character and character:FindFirstChild("HumanoidRootPart") then
-        -- Criar a seta (um pequeno triângulo)
-        local arrow = Instance.new("Part")
-        arrow.Size = Vector3.new(1, 1, 1)  -- Tamanho da seta
-        arrow.Shape = Enum.PartType.Wedge
-        arrow.Color = Color3.fromRGB(255, 0, 0)  -- Cor vermelha
-        arrow.Anchored = true
-        arrow.CanCollide = false
-        arrow.CFrame = character.HumanoidRootPart.CFrame * CFrame.new(0, 3, 0)  -- Posiciona a seta acima da cabeça
-        arrow.Parent = game.Workspace
-        arrow:SetAttribute("ESP_Arrow", true)  -- Para distinguir a seta
-
-        -- Remover a seta após um tempo
-        game.Debris:AddItem(arrow, 1)
-    end
-end
-
--- Função principal ESP para ativar o Wallhack, ESP visual e desenhar a seta
+-- Função principal ESP para ativar o Wallhack e mostrar os players
 local function Esp(character)
     if character and character:FindFirstChild("HumanoidRootPart") then
         -- Aplicar wallhack para o personagem ser visto através das paredes
         wallhack(character)
-
-        -- Desenhar a seta vermelha sobre o personagem
-        drawArrow(character)
     end
 end
 
