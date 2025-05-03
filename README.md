@@ -1,8 +1,70 @@
 -- Variáveis locais
 local player = game.Players.LocalPlayer
 local camera = game.Workspace.CurrentCamera
+local rayParams = RaycastParams.new()  -- Parâmetros do Raycast
 
--- Criar o painel flutuante
+-- Parâmetros do Aimbot
+local fovRadius = 50 -- Definindo o raio do FOV (quanto maior, maior a área em que o aimbot procurará alvos)
+local aimbotActive = false -- Controle de ativação do Aimbot
+
+-- Função para verificar se o alvo está dentro do FOV
+local function isInFOV(targetPosition)
+    -- Calcula a posição do alvo em relação à câmera
+    local cameraPosition = camera.CFrame.Position
+    local direction = (targetPosition - cameraPosition).unit
+    local dotProduct = camera.CFrame.LookVector:Dot(direction)
+    
+    -- FOV é baseado no ângulo da câmera
+    return dotProduct > math.cos(math.rad(fovRadius)) -- Se estiver dentro do FOV
+end
+
+-- Função do Aimbot com Câmera Livre e FOV
+local function aimbot()
+    local mouse = player:GetMouse()
+    local target = nil
+    local closestDistance = math.huge
+
+    -- Encontra o alvo mais próximo (outro jogador da equipe adversária)
+    for _, otherPlayer in pairs(game.Players:GetPlayers()) do
+        if otherPlayer ~= player and otherPlayer.Team.Name ~= player.Team.Name then
+            local targetCharacter = otherPlayer.Character
+            if targetCharacter and targetCharacter:FindFirstChild("HumanoidRootPart") then
+                local targetPosition = targetCharacter.HumanoidRootPart.Position
+
+                -- Verifica se o alvo está dentro do FOV
+                if isInFOV(targetPosition) then
+                    local distance = (mouse.Hit.p - targetPosition).Magnitude
+                    if distance < closestDistance then
+                        target = targetCharacter
+                        closestDistance = distance
+                    end
+                end
+            end
+        end
+    end
+
+    -- Mira para o alvo mais próximo dentro do FOV
+    if target then
+        local humanoidRootPart = player.Character:FindFirstChild("HumanoidRootPart")
+        if humanoidRootPart then
+            local direction = (target.HumanoidRootPart.Position - humanoidRootPart.Position).unit
+            local ray = Ray.new(humanoidRootPart.Position, direction * 1000)  -- Define o alcance da mira
+            rayParams.FilterDescendantsInstances = {player.Character}  -- Ignora o próprio jogador para não detectar ele mesmo
+
+            -- Realiza o Raycast, ignorando as colisões
+            local hitPart, hitPosition = workspace:Raycast(humanoidRootPart.Position, direction * 1000, rayParams)
+
+            -- Verifica se o raycast atingiu algo
+            if hitPart then
+                -- Aqui você pode simular o disparo ou a ação de atirar
+                print(player.Name .. " está mirando em " .. target.Name)
+                -- Exemplo de disparo (adicione a lógica de disparo do jogo aqui)
+            end
+        end
+    end
+end
+
+-- Criar a interface do painel flutuante
 local gui = Instance.new("ScreenGui")
 gui.Name = "XurrascoPanel"
 gui.ResetOnSpawn = false
@@ -34,7 +96,7 @@ title.Parent = frame
 -- Ícone do Brr Brr Patapim
 local iconButton = Instance.new("ImageButton")
 iconButton.Size = UDim2.new(0, 50, 0, 50)
-iconButton.Position = UDim2.new(0.5, -25, 0, 10)  -- Posição do ícone no topo
+iconButton.Position = UDim2.new(0, 10, 0, 10)  -- Posição do ícone no canto superior esquerdo
 iconButton.BackgroundTransparency = 1
 iconButton.Image = "rbxassetid://105182366707019"  -- Coloque o ID do seu asset aqui
 iconButton.Parent = gui
@@ -55,10 +117,8 @@ wallhackButton.TextSize = 18
 wallhackButton.TextColor3 = Color3.new(1, 1, 1)
 wallhackButton.Parent = frame
 
--- Variável para o Wallhack
-local wallhackActive = false
-
 -- Função para ativar/desativar o Wallhack
+local wallhackActive = false  -- Controle de ativação do Wallhack
 wallhackButton.MouseButton1Click:Connect(function()
     wallhackActive = not wallhackActive
     if wallhackActive then
@@ -70,7 +130,7 @@ wallhackButton.MouseButton1Click:Connect(function()
     end
 end)
 
--- Função para aplicar o Wallhack e exibir os inimigos
+-- Função para tornar os jogadores visíveis atrás das paredes e deixá-los de cor preta forte
 local function wallhack(character)
     if character then
         local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
@@ -79,9 +139,11 @@ local function wallhack(character)
         if humanoidRootPart and humanoid then
             -- Tornar o personagem semi-transparente para "wallhack"
             humanoidRootPart.LocalTransparencyModifier = 0.5  -- Torna o jogador semi-transparente
+            
             -- Mudar a cor do personagem para um preto bem forte
             for _, part in pairs(character:GetChildren()) do
                 if part:IsA("MeshPart") or part:IsA("Part") then
+                    -- Define a cor preta bem forte e destacada
                     part.BrickColor = BrickColor.new("Really black")  -- Usando a cor "Really black" que é o preto mais forte
                     part.LocalTransparencyModifier = 0.5  -- Aplica transparência para ver através das paredes
                 end
@@ -94,49 +156,8 @@ end
 local function applyWallhack()
     for _, otherPlayer in pairs(game.Players:GetPlayers()) do
         if otherPlayer.Character and otherPlayer ~= player then
-            -- Chama a função para tornar o jogador visível atrás das paredes
+            -- Chama a função para tornar o jogador visível atrás das paredes e preto
             wallhack(otherPlayer.Character)
-        end
-    end
-end
-
--- Função para ativar o Wallhack enquanto o jogador estiver na partida
-game:GetService("RunService").RenderStepped:Connect(function()
-    if wallhackActive then
-        applyWallhack()  -- Aplica o Wallhack a cada frame
-    end
-end)
-
--- Função do Aimbot com Câmera Livre
-local function aimbot()
-    local mouse = player:GetMouse()
-    local target = nil
-    local closestDistance = math.huge
-
-    -- Encontra o alvo mais próximo (outro jogador da equipe adversária)
-    for _, otherPlayer in pairs(game.Players:GetPlayers()) do
-        if otherPlayer ~= player and otherPlayer.Team.Name ~= player.Team.Name then
-            local targetCharacter = otherPlayer.Character
-            if targetCharacter and targetCharacter:FindFirstChild("HumanoidRootPart") then
-                local distance = (mouse.Hit.p - targetCharacter.HumanoidRootPart.Position).Magnitude
-                if distance < closestDistance then
-                    target = targetCharacter
-                    closestDistance = distance
-                end
-            end
-        end
-    end
-
-    -- Mira para o alvo mais próximo sem mexer na câmera
-    if target then
-        local humanoidRootPart = player.Character:FindFirstChild("HumanoidRootPart")
-        if humanoidRootPart then
-            local direction = (target.HumanoidRootPart.Position - humanoidRootPart.Position).unit
-            local ray = Ray.new(humanoidRootPart.Position, direction * 1000)  -- Define o alcance da mira
-            local hitPart, hitPosition = workspace:FindPartOnRay(ray, player.Character)
-
-            -- Exemplo de ação de disparo
-            print(player.Name .. " está mirando em " .. target.Name)
         end
     end
 end
@@ -152,9 +173,6 @@ aimbotButton.TextSize = 18
 aimbotButton.TextColor3 = Color3.new(1, 1, 1)
 aimbotButton.Parent = frame
 
--- Variável para verificar se o Aimbot está ativado
-local aimbotActive = false
-
 -- Função para ativar e desativar o Aimbot
 aimbotButton.MouseButton1Click:Connect(function()
     aimbotActive = not aimbotActive  -- Alterna o estado do Aimbot
@@ -169,7 +187,10 @@ end)
 
 -- Função para rodar o Aimbot enquanto ele estiver ativado
 game:GetService("RunService").RenderStepped:Connect(function()
+    if wallhackActive then
+        applyWallhack()  -- Aplica o Wallhack a cada frame
+    end
     if aimbotActive then
-        aimbot()  -- Chama a função do Aimbot para mirar nos alvos
+        aimbot()  -- Chama a função do Aimbot para mirar nos alvos dentro do FOV
     end
 end)
