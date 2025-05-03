@@ -31,17 +31,17 @@ title.Font = Enum.Font.GothamBold
 title.TextSize = 22
 title.Parent = frame
 
--- Ícone do Brr Brr Patapim (Posicionado no topo)
+-- Ícone do Brr Brr Patapim (Posicionado no topo e no meio da tela)
 local iconButton = Instance.new("ImageButton")
 iconButton.Size = UDim2.new(0, 50, 0, 50)
-iconButton.Position = UDim2.new(0, 10, 0, 10)  -- Posição inicial no canto superior esquerdo
+iconButton.Position = UDim2.new(0.5, -25, 0, 10)  -- Posição no topo, no meio da tela
 iconButton.BackgroundTransparency = 1
 iconButton.Image = "rbxassetid://105182366707019"  -- Coloque o ID do seu asset aqui
 iconButton.Parent = gui
 
--- Desabilitar a funcionalidade de arrastar o ícone
-iconButton.Active = false  -- Permite interação, mas sem a capacidade de mover
-iconButton.Draggable = true  -- Desabilita o movimento do ícone
+-- Permitir que o ícone seja movido
+iconButton.Active = true  -- Permite interação
+iconButton.Draggable = true  -- Permite o movimento do ícone
 
 -- Funcionalidade para abrir e minimizar o painel ao clicar no ícone
 iconButton.MouseButton1Click:Connect(function()
