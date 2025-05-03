@@ -81,9 +81,9 @@ local function wallhack(character)
             -- Mudar a cor do personagem para um preto bem forte
             for _, part in pairs(character:GetChildren()) do
                 if part:IsA("MeshPart") or part:IsA("Part") then
-                    -- Define a cor preta bem forte
-                    part.BrickColor = BrickColor.new("Black")  -- Cor preta total
-                    part.LocalTransparencyModifier = 0.5  -- Aplica transparência
+                    -- Define a cor preta bem forte e destacada
+                    part.BrickColor = BrickColor.new("Really black")  -- Usando a cor "Really black" que é o preto mais forte
+                    part.LocalTransparencyModifier = 0.5  -- Aplica transparência para ver através das paredes
                 end
             end
         end
