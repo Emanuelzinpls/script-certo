@@ -61,6 +61,7 @@ wallhackButton.Parent = frame
 
 -- Controle de ativação do Wallhack
 local wallhackActive = false  -- Controle de ativação do Wallhack
+local healthBars = {}  -- Armazena as barras de vida para cada jogador
 
 -- Função para ativar/desativar o Wallhack
 wallhackButton.MouseButton1Click:Connect(function()
@@ -82,6 +83,11 @@ wallhackButton.MouseButton1Click:Connect(function()
                         part.BrickColor = BrickColor.new("Bright blue")  -- Cor original ou qualquer outra
                         part.Transparency = 0  -- Restaurando a opacidade
                     end
+                end
+                -- Remover a barra de vida, se existir
+                if healthBars[otherPlayer] then
+                    healthBars[otherPlayer]:Destroy()
+                    healthBars[otherPlayer] = nil
                 end
             end
         end
@@ -111,6 +117,11 @@ local function deactivateWallhack()
                     part.BrickColor = BrickColor.new("Bright blue")  -- Cor original ou qualquer outra
                     part.Transparency = 0  -- Restaurando a opacidade
                 end
+            end
+            -- Remover a barra de vida, se existir
+            if healthBars[otherPlayer] then
+                healthBars[otherPlayer]:Destroy()
+                healthBars[otherPlayer] = nil
             end
         end
     end
@@ -164,6 +175,9 @@ local function createHealthBar(character)
                 bar.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
             end
         end)
+
+        -- Armazenar a barra de vida para remover depois
+        healthBars[game.Players:GetPlayerFromCharacter(character)] = healthBar
     end
 end
 
