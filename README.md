@@ -93,23 +93,23 @@ end
 -- Função para criar a imagem acima da cabeça dos jogadores
 local function criarImagemAcimaDaCabeça(player)
     local character = player.Character
-    if not character then return end
+    if character and character:FindFirstChild("Head") then
+        -- Criar um BillboardGui
+        local billboardGui = Instance.new("BillboardGui")
+        billboardGui.Adornee = character:WaitForChild("Head")  -- Coloca acima da cabeça do player
+        billboardGui.Size = UDim2.new(0, 100, 0, 100)  -- Tamanho da imagem
+        billboardGui.StudsOffset = Vector3.new(0, 2, 0)  -- Distância acima da cabeça
 
-    -- Criar um BillboardGui
-    local billboardGui = Instance.new("BillboardGui")
-    billboardGui.Adornee = character:WaitForChild("Head")  -- Coloca acima da cabeça do player
-    billboardGui.Size = UDim2.new(0, 100, 0, 100)  -- Tamanho da imagem
-    billboardGui.StudsOffset = Vector3.new(0, 2, 0)  -- Distância acima da cabeça
+        -- Criar uma ImageLabel dentro do BillboardGui
+        local imageLabel = Instance.new("ImageLabel")
+        imageLabel.Parent = billboardGui
+        imageLabel.Size = UDim2.new(1, 0, 1, 0)  -- Tamanho da imagem
+        imageLabel.Image = imageId  -- Definir a imagem com o ID
+        imageLabel.BackgroundTransparency = 1  -- Remover fundo
 
-    -- Criar uma ImageLabel dentro do BillboardGui
-    local imageLabel = Instance.new("ImageLabel")
-    imageLabel.Parent = billboardGui
-    imageLabel.Size = UDim2.new(1, 0, 1, 0)  -- Tamanho da imagem
-    imageLabel.Image = imageId  -- Definir a imagem com o ID
-    imageLabel.BackgroundTransparency = 1  -- Remover fundo
-
-    -- Adicionar o BillboardGui ao personagem do player
-    billboardGui.Parent = character:WaitForChild("Head")
+        -- Adicionar o BillboardGui ao personagem do player
+        billboardGui.Parent = character:WaitForChild("Head")
+    end
 end
 
 -- Função para criar a barra de vida dos jogadores
