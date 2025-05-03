@@ -138,25 +138,32 @@ local function showPanel()
     gui.Name = "XurrascoPanelUI"
 
     local panel = Instance.new("Frame", gui)
-    panel.Size = UDim2.new(0, 300, 0, 250)
-    panel.Position = UDim2.new(0.5, -150, 0.5, -125)
+    panel.Size = UDim2.new(0, 400, 0, 300)
+    panel.Position = UDim2.new(0.5, -200, 0.5, -150)
     panel.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
     panel.BorderSizePixel = 2
     panel.Draggable = true  -- Torna o painel arrastável
 
+    -- Fundo do painel com imagem "brr brr patapim"
+    local imageBackground = Instance.new("ImageLabel", panel)
+    imageBackground.Size = UDim2.new(1, 0, 1, 0)
+    imageBackground.Image = "rbxassetid://SeuAssetID"  -- Substitua com o ID da imagem do "brr brr patapim"
+    imageBackground.BackgroundTransparency = 1
+    imageBackground.ScaleType = Enum.ScaleType.Crop
+
     local title = Instance.new("TextLabel", panel)
-    title.Size = UDim2.new(1, 0, 0, 30)
+    title.Size = UDim2.new(1, 0, 0, 40)
     title.Text = "Xurrasco"
     title.TextColor3 = Color3.new(1, 1, 1)
     title.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
     title.Font = Enum.Font.SourceSansBold
-    title.TextSize = 20
+    title.TextSize = 24
     title.TextXAlignment = Enum.TextXAlignment.Center
 
     -- Botões de Ativar/Desativar ESP e Aimbot
     local espButton = Instance.new("TextButton", panel)
-    espButton.Size = UDim2.new(0, 120, 0, 30)
-    espButton.Position = UDim2.new(0.5, -60, 0.6, 0)
+    espButton.Size = UDim2.new(0, 120, 0, 40)
+    espButton.Position = UDim2.new(0.5, -130, 0.6, 0)
     espButton.Text = "Ativar ESP"
     espButton.TextColor3 = Color3.new(1, 1, 1)
     espButton.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
@@ -168,8 +175,8 @@ local function showPanel()
     end)
 
     local aimbotButton = Instance.new("TextButton", panel)
-    aimbotButton.Size = UDim2.new(0, 120, 0, 30)
-    aimbotButton.Position = UDim2.new(0.5, -60, 0.7, 0)
+    aimbotButton.Size = UDim2.new(0, 120, 0, 40)
+    aimbotButton.Position = UDim2.new(0.5, -130, 0.7, 0)
     aimbotButton.Text = "Ativar Aimbot"
     aimbotButton.TextColor3 = Color3.new(1, 1, 1)
     aimbotButton.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
