@@ -1,5 +1,6 @@
 -- Variáveis locais
 local player = game.Players.LocalPlayer
+local camera = game.Workspace.CurrentCamera
 local gui = Instance.new("ScreenGui")
 gui.Name = "XurrascoPanel"
 gui.ResetOnSpawn = false
@@ -72,7 +73,7 @@ local function drawESP(character)
         local espBox = Instance.new("BillboardGui")
         espBox.Parent = character.HumanoidRootPart
         espBox.Adornee = character.HumanoidRootPart
-        espBox.Size = UDim2.new(0, 100, 0, 100)  -- Tamanho da caixa
+        espBox.Size = UDim2.new(0, 50, 0, 50)  -- Diminuir o tamanho da caixa
         espBox.StudsOffset = Vector3.new(0, 2, 0)
 
         local frame = Instance.new("Frame")
@@ -83,19 +84,24 @@ local function drawESP(character)
     end
 end
 
--- Função para verificar se o jogador está na mesma equipe
-local function isDifferentTeam(player1, player2)
-    return player1.Team ~= player2.Team
+-- Função para tornar os jogadores visíveis através das paredes (Wallhack)
+local function wallhack(character)
+    if character then
+        local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
+        if humanoidRootPart then
+            -- Tornar o personagem semi-transparente para "wallhack"
+            humanoidRootPart.LocalTransparencyModifier = 0.5  -- Torna o jogador semi-transparente
+        end
+    end
 end
 
--- Função para exibir ESP para jogadores que não estão na mesma equipe
+-- Função principal para ativar o ESP em jogadores
 local function displayESP()
     for _, otherPlayer in pairs(game.Players:GetPlayers()) do
         if otherPlayer.Character and otherPlayer ~= player then
-            if isDifferentTeam(player, otherPlayer) then
-                -- Chama a função para desenhar o ESP se os jogadores não estiverem na mesma equipe
-                drawESP(otherPlayer.Character)
-            end
+            -- Chama a função para desenhar o ESP e tornar o jogador visível atrás das paredes
+            drawESP(otherPlayer.Character)
+            wallhack(otherPlayer.Character)
         end
     end
 end
