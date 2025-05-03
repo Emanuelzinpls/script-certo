@@ -94,4 +94,102 @@ title.TextSize = 22
 title.Parent = frame
 
 -- Ícone do Brr Brr Patapim - Posicionado no topo e centralizado
-local
+local iconButton = Instance.new("ImageButton")
+iconButton.Size = UDim2.new(0, 50, 0, 50)
+iconButton.Position = UDim2.new(0.5, -25, 0, 0)  -- Coloca o ícone no topo da tela e no meio
+iconButton.BackgroundTransparency = 1
+iconButton.Image = "rbxassetid://105182366707019"  -- Coloque o ID do seu asset aqui
+iconButton.Parent = gui
+
+-- Função para abrir e minimizar o painel ao clicar no ícone
+iconButton.MouseButton1Click:Connect(function()
+    frame.Visible = not frame.Visible  -- Alterna a visibilidade do painel
+end)
+
+-- Botão para ativar/desativar o Wallhack
+local wallhackButton = Instance.new("TextButton")
+wallhackButton.Size = UDim2.new(0, 150, 0, 40)
+wallhackButton.Position = UDim2.new(0.5, -75, 0, 60)
+wallhackButton.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
+wallhackButton.Text = "Ativar Wallhack"
+wallhackButton.Font = Enum.Font.GothamBold
+wallhackButton.TextSize = 18
+wallhackButton.TextColor3 = Color3.new(1, 1, 1)
+wallhackButton.Parent = frame
+
+-- Função para ativar/desativar o Wallhack
+local wallhackActive = false  -- Controle de ativação do Wallhack
+wallhackButton.MouseButton1Click:Connect(function()
+    wallhackActive = not wallhackActive
+    if wallhackActive then
+        wallhackButton.Text = "Desativar Wallhack"
+        print("Wallhack Ativado")
+    else
+        wallhackButton.Text = "Ativar Wallhack"
+        print("Wallhack Desativado")
+    end
+end)
+
+-- Função para tornar os jogadores visíveis atrás das paredes e deixá-los de cor preta forte
+local function wallhack(character)
+    if character then
+        local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
+        local humanoid = character:FindFirstChild("Humanoid")
+        
+        if humanoidRootPart and humanoid then
+            -- Tornar o personagem semi-transparente para "wallhack"
+            humanoidRootPart.LocalTransparencyModifier = 0.5  -- Torna o jogador semi-transparente
+            -- Mudar a cor do personagem para um preto bem forte
+            for _, part in pairs(character:GetChildren()) do
+                if part:IsA("MeshPart") or part:IsA("Part") then
+                    -- Define a cor preta bem forte e destacada
+                    part.BrickColor = BrickColor.new("Really black")  -- Usando a cor "Really black" que é o preto mais forte
+                    part.LocalTransparencyModifier = 0.5  -- Aplica transparência para ver através das paredes
+                end
+            end
+        end
+    end
+end
+
+-- Função para aplicar o Wallhack
+local function applyWallhack()
+    for _, otherPlayer in pairs(game.Players:GetPlayers()) do
+        if otherPlayer.Character and otherPlayer ~= player then
+            -- Chama a função para tornar o jogador visível atrás das paredes e preto
+            wallhack(otherPlayer.Character)
+        end
+    end
+end
+
+-- Botão para ativar/desativar o Aimbot
+local aimbotButton = Instance.new("TextButton")
+aimbotButton.Size = UDim2.new(0, 150, 0, 40)
+aimbotButton.Position = UDim2.new(0.5, -75, 0, 120)
+aimbotButton.BackgroundColor3 = Color3.fromRGB(0, 0, 255)  -- Cor do botão
+aimbotButton.Text = "Ativar Aimbot"
+aimbotButton.Font = Enum.Font.GothamBold
+aimbotButton.TextSize = 18
+aimbotButton.TextColor3 = Color3.new(1, 1, 1)
+aimbotButton.Parent = frame
+
+-- Função para ativar e desativar o Aimbot
+aimbotButton.MouseButton1Click:Connect(function()
+    aimbotActive = not aimbotActive  -- Alterna o estado do Aimbot
+    if aimbotActive then
+        aimbotButton.Text = "Desativar Aimbot"
+        print("Aimbot Ativado")
+    else
+        aimbotButton.Text = "Ativar Aimbot"
+        print("Aimbot Desativado")
+    end
+end)
+
+-- Função para rodar o Aimbot enquanto ele estiver ativado
+game:GetService("RunService").RenderStepped:Connect(function()
+    if wallhackActive then
+        applyWallhack()  -- Aplica o Wallhack a cada frame
+    end
+    if aimbotActive then
+        aimbot()  -- Chama a função do Aimbot para mirar nos alvos dentro do FOV
+    end
+end)
