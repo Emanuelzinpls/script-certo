@@ -1,40 +1,31 @@
--- Painel Flutuante Xurrasco
+-- Criando o painel flutuante "Xurrasco"
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 
--- Só mostrar se for o dono do jogo (altere aqui se quiser outro UserId)
-if LocalPlayer.UserId ~= game.CreatorId then return end
-
--- GUI Setup
+-- Criar uma interface de usuário flutuante
 local gui = Instance.new("ScreenGui")
-gui.Name = "XurrascoDevPanel"
+gui.Name = "XurrascoPanel"
 gui.ResetOnSpawn = false
 gui.IgnoreGuiInset = true
 gui.Parent = LocalPlayer:WaitForChild("PlayerGui")
 
--- Painel Principal
 local frame = Instance.new("Frame")
-frame.Size = UDim2.new(0, 450, 0, 300)
-frame.Position = UDim2.new(0.5, -225, 0.5, -150)
-frame.BackgroundTransparency = 0
+frame.Size = UDim2.new(0, 400, 0, 250)
+frame.Position = UDim2.new(0.5, -200, 0.5, -125)
 frame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+frame.BackgroundTransparency = 0.5
 frame.Active = true
 frame.Draggable = true
 frame.Parent = gui
 
--- Fundo do painel com imagem "brr brr patapim"
+-- Imagem de fundo
 local bg = Instance.new("ImageLabel")
 bg.Size = UDim2.new(1, 0, 1, 0)
 bg.Position = UDim2.new(0, 0, 0, 0)
 bg.BackgroundTransparency = 1
-bg.Image = "rbxassetid://86404027639991"
-bg.ImageTransparency = 0.2
+bg.Image = "rbxassetid://86404027639991"  -- "brr brr patapim"
+bg.ImageTransparency = 0.3
 bg.Parent = frame
-
--- Canto arredondado
-local corner = Instance.new("UICorner")
-corner.CornerRadius = UDim.new(0, 12)
-corner.Parent = frame
 
 -- Título
 local title = Instance.new("TextLabel")
@@ -47,29 +38,82 @@ title.Font = Enum.Font.GothamBold
 title.TextSize = 22
 title.Parent = frame
 
+-- Função para criar botões
 local function createButton(text, yPos, callback)
-	local button = Instance.new("TextButton")
-	button.Size = UDim2.new(1, -20, 0, 40)
-	button.Position = UDim2.new(0, 10, 0, yPos)
-	button.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-	button.TextColor3 = Color3.new(1, 1, 1)
-	button.Text = text
-	button.Font = Enum.Font.Gotham
-	button.TextSize = 16
-	button.Parent = frame
+    local button = Instance.new("TextButton")
+    button.Size = UDim2.new(1, -20, 0, 40)
+    button.Position = UDim2.new(0, 10, 0, yPos)
+    button.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+    button.TextColor3 = Color3.new(1, 1, 1)
+    button.Text = text
+    button.Font = Enum.Font.Gotham
+    button.TextSize = 16
+    button.Parent = frame
 
-	local uicorner = Instance.new("UICorner")
-	uicorner.CornerRadius = UDim.new(0, 8)
-	uicorner.Parent = button
+    local uicorner = Instance.new("UICorner")
+    uicorner.CornerRadius = UDim.new(0, 8)
+    uicorner.Parent = button
 
-	button.MouseButton1Click:Connect(callback)
+    button.MouseButton1Click:Connect(callback)
 end
 
--- Função de "ESP" de debug: Mostra nomes de jogadores próximos (sem wallhack)
+-- Função de ESP para mostrar jogadores próximos
 createButton("👀 Ver Jogadores Próximos", 50, function()
-	for _, player in ipairs(Players:GetPlayers()) do
-		if player ~= LocalPlayer and player.Character and player.Character:FindFirstChild("Head") then
-			local billboard = Instance.new("BillboardGui")
-			billboard.Name = "DebugNameTag"
-			billboard.Adornee = player.Character.Head
-			billboard.Size = UDim2.new(0, 200,
+    for _, player in ipairs(Players:GetPlayers()) do
+        if player ~= LocalPlayer and player.Character and player.Character:FindFirstChild("Head") then
+            local billboard = Instance.new("BillboardGui")
+            billboard.Name = "DebugNameTag"
+            billboard.Adornee = player.Character.Head
+            billboard.Size = UDim2.new(0, 200, 0, 50)
+            billboard.StudsOffset = Vector3.new(0, 2, 0)
+            billboard.AlwaysOnTop = true
+            billboard.Parent = player.Character
+
+            local label = Instance.new("TextLabel")
+            label.Size = UDim2.new(1, 0, 1, 0)
+            label.BackgroundTransparency = 1
+            label.Text = "👤 " .. player.Name
+            label.TextColor3 = Color3.new(1, 1, 1)
+            label.Font = Enum.Font.Gotham
+            label.TextScaled = true
+            label.Parent = billboard
+        end
+    end
+end)
+
+-- Análise de movimento
+createButton("📈 Análise de Movimento", 100, function()
+    local char = LocalPlayer.Character
+    if not char then return end
+    local root = char:FindFirstChild("HumanoidRootPart")
+    if not root then return end
+
+    -- Exibir velocidade e movimento do jogador
+    game.StarterGui:SetCore("ChatMakeSystemMessage", {
+        Text = "[DEBUG] Velocidade atual: " .. tostring(root.Velocity.Magnitude),
+        Color = Color3.fromRGB(0, 200, 255)
+    })
+end)
+
+-- Simular aimbot (só para visualização)
+createButton("🎯 Simular Aimbot", 150, function()
+    local target = workspace:FindFirstChild("AimbotTarget")
+    if target and target:IsA("Model") then
+        local camera = workspace.CurrentCamera
+        camera.CameraSubject = target
+        camera.CFrame = target.PrimaryPart.CFrame
+    end
+end)
+
+-- Minimizar painel
+createButton("🗕 Minimizar", 200, function()
+    frame.Visible = false
+end)
+
+-- Exibir painel novamente ao pressionar F6
+local UserInputService = game:GetService("UserInputService")
+UserInputService.InputBegan:Connect(function(input, processed)
+    if not processed and input.KeyCode == Enum.KeyCode.F6 then
+        frame.Visible = not frame.Visible
+    end
+end)
