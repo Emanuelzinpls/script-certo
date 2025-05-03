@@ -94,15 +94,9 @@ wallhackButton.MouseButton1Click:Connect(function()
     end
 end)
 
--- Função para ativar o Wallhack
-local function activateWallhack()
-    wallhackActive = true
-    wallhackButton.Text = "Desativar Wallhack"
-    print("Wallhack Ativado Programaticamente")
-end
-
--- Função para desativar o Wallhack
-local function deactivateWallhack()
+-- Função para desativar todas as funcionalidades ativadas
+local function deactivateAllFunctions()
+    -- Desativar Wallhack
     wallhackActive = false
     wallhackButton.Text = "Ativar Wallhack"
     print("Wallhack Desativado Programaticamente")
@@ -125,7 +119,26 @@ local function deactivateWallhack()
             end
         end
     end
+
+    -- Outras desativações podem ser colocadas aqui (caso você tenha mais funcionalidades ativadas)
+    print("Todas as funções foram desativadas.")
 end
+
+-- Botão para desativar todas as funções
+local deactivateButton = Instance.new("TextButton")
+deactivateButton.Size = UDim2.new(0, 150, 0, 40)
+deactivateButton.Position = UDim2.new(0.5, -75, 0, 110)  -- Posição abaixo do Wallhack
+deactivateButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0)  -- Cor vermelha para desativação
+deactivateButton.Text = "Desativar Todas Funções"
+deactivateButton.Font = Enum.Font.GothamBold
+deactivateButton.TextSize = 18
+deactivateButton.TextColor3 = Color3.new(1, 1, 1)
+deactivateButton.Parent = frame
+
+-- Conectar o botão de desativar todas as funções
+deactivateButton.MouseButton1Click:Connect(function()
+    deactivateAllFunctions()  -- Chama a função que desativa todas as funcionalidades
+end)
 
 -- Função para tornar os jogadores visíveis atrás das paredes e deixá-los de cor preta forte
 local function wallhack(character)
@@ -200,25 +213,3 @@ game:GetService("RunService").RenderStepped:Connect(function()
         applyWallhackAndHealthBar()  -- Aplica o wallhack e a barra de vida a cada frame
     end
 end)
-
--- Função para desativar todas as funcionalidades ativadas
-local function deactivateAllFunctions()
-    -- Desativar Wallhack
-    deactivateWallhack()
-    
-    -- Remover as barras de vida
-    for _, otherPlayer in pairs(game.Players:GetPlayers()) do
-        if otherPlayer.Character and healthBars[otherPlayer] then
-            healthBars[otherPlayer]:Destroy()  -- Remove as barras de vida
-            healthBars[otherPlayer] = nil
-        end
-    end
-
-    -- Outras desativações podem ser colocadas aqui (caso você tenha mais funcionalidades ativadas)
-    print("Todas as funções foram desativadas.")
-end
-
--- Exemplo de uso:
--- activateWallhack()  -- Ativa o Wallhack programaticamente
--- deactivateWallhack()  -- Desativa o Wallhack programaticamente
--- deactivateAllFunctions()  -- Desativa todas as funções programaticamente
