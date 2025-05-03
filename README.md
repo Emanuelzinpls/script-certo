@@ -48,179 +48,40 @@ iconButton.MouseButton1Click:Connect(function()
     frame.Visible = not frame.Visible  -- Alterna a visibilidade do painel
 end)
 
--- Controle de ativação do Wallhack
-local wallhackActive = false  -- Controle de ativação do Wallhack
-local healthBars = {}  -- Armazena as barras de vida para cada jogador
-local originalColors = {}  -- Armazenando as cores originais para restaurar
-
--- Botão para ativar/desativar o Wallhack
-local wallhackButton = Instance.new("TextButton")
-wallhackButton.Size = UDim2.new(0, 150, 0, 40)
-wallhackButton.Position = UDim2.new(0.5, -75, 0, 60)
-wallhackButton.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
-wallhackButton.Text = "Ativar Wallhack"
-wallhackButton.Font = Enum.Font.GothamBold
-wallhackButton.TextSize = 18
-wallhackButton.TextColor3 = Color3.new(1, 1, 1)
-wallhackButton.Parent = frame
-
--- Função para ativar/desativar o Wallhack
-wallhackButton.MouseButton1Click:Connect(function()
-    wallhackActive = not wallhackActive
-    if wallhackActive then
-        wallhackButton.Text = "Desativar Wallhack"
-        print("Wallhack Ativado")
-    else
-        wallhackButton.Text = "Ativar Wallhack"
-        print("Wallhack Desativado")
-        
-        -- Restaurar todos os jogadores para o estado original (desativa o wallhack)
-        for _, otherPlayer in pairs(game.Players:GetPlayers()) do
-            if otherPlayer.Character and otherPlayer ~= player then
-                local character = otherPlayer.Character
-                -- Restaurando a aparência do jogador
-                for _, part in pairs(character:GetChildren()) do
-                    if part:IsA("MeshPart") or part:IsA("Part") then
-                        if originalColors[otherPlayer] and originalColors[otherPlayer][part] then
-                            part.BrickColor = originalColors[otherPlayer][part]  -- Restaurando a cor original
-                        else
-                            part.BrickColor = BrickColor.new("Bright blue")  -- Cor original ou qualquer outra
-                        end
-                        part.Transparency = 0  -- Restaurando a opacidade
-                    end
-                end
-                -- Remover a barra de vida, se existir
-                if healthBars[otherPlayer] then
-                    healthBars[otherPlayer]:Destroy()
-                    healthBars[otherPlayer] = nil
-                end
-            end
-        end
-    end
-end)
-
--- Função para tornar os jogadores visíveis atrás das paredes e deixá-los de cor preta forte
-local function wallhack(character)
-    if character then
-        local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
-        local humanoid = character:FindFirstChild("Humanoid")
-        
-        if humanoidRootPart and humanoid then
-            -- Tornar o personagem semi-transparente para "wallhack"
-            for _, part in pairs(character:GetChildren()) do
-                if part:IsA("MeshPart") or part:IsA("Part") then
-                    -- Armazenando a cor original antes de alterar
-                    if not originalColors[game.Players:GetPlayerFromCharacter(character)] then
-                        originalColors[game.Players:GetPlayerFromCharacter(character)] = {}
-                    end
-                    originalColors[game.Players:GetPlayerFromCharacter(character)][part] = part.BrickColor
-
-                    -- Define a cor preta bem forte e destacada
-                    part.BrickColor = BrickColor.new("Really black")  -- Usando a cor "Really black" que é o preto mais forte
-                    part.Transparency = 0.5  -- Aplica transparência para ver através das paredes
-                end
-            end
-        end
-    end
-end
-
--- Função para criar a barra de vida dos jogadores
-local function createHealthBar(character)
-    if character and character:FindFirstChild("Humanoid") then
-        local humanoid = character:FindFirstChild("Humanoid")
-        
-        -- Criar a barra de vida
-        local healthBar = Instance.new("BillboardGui")
-        healthBar.Adornee = character.HumanoidRootPart
-        healthBar.Size = UDim2.new(0, 100, 0, 10)
-        healthBar.StudsOffset = Vector3.new(0, 2, 0)
-        healthBar.Parent = character.HumanoidRootPart
-        
-        local bar = Instance.new("Frame")
-        bar.Size = UDim2.new(1, 0, 1, 0)
-        bar.BackgroundColor3 = Color3.fromRGB(0, 255, 0)  -- Cor inicial da barra de vida
-        bar.Parent = healthBar
-
-        -- Atualizar a barra de vida com o valor atual de saúde
-        humanoid.HealthChanged:Connect(function()
-            local healthPercentage = humanoid.Health / humanoid.MaxHealth
-            bar.Size = UDim2.new(healthPercentage, 0, 1, 0)
-
-            -- Se a saúde for baixa, a barra ficará vermelha
-            if humanoid.Health / humanoid.MaxHealth < 0.3 then
-                bar.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
-            else
-                bar.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
-            end
-        end)
-
-        -- Armazenar a barra de vida para remover depois
-        healthBars[game.Players:GetPlayerFromCharacter(character)] = healthBar
-    end
-end
-
--- Função para aplicar Wallhack e barra de vida
-local function applyWallhackAndHealthBar()
-    for _, otherPlayer in pairs(game.Players:GetPlayers()) do
-        if otherPlayer.Character and otherPlayer ~= player then
-            -- Aplica o Wallhack
-            wallhack(otherPlayer.Character)
-            
-            -- Cria a barra de vida
-            createHealthBar(otherPlayer.Character)
-        end
-    end
-end
-
--- Função para ativar o Wallhack enquanto o jogador estiver na partida
-game:GetService("RunService").RenderStepped:Connect(function()
-    if wallhackActive then
-        applyWallhackAndHealthBar()  -- Aplica o wallhack e a barra de vida a cada frame
-    end
-end)
-
--- Função de Aimbot com verificação de equipe
+-- Controle de ativação do Aimbot
 local aimbotActive = false  -- Controle de ativação do Aimbot
 
-local function aimbotWithTeamCheck(player)
-    local character = player.Character
-    if not character then return end
-    
-    -- Verifica se o jogador está na equipe correta
-    local team = player.Team
-    if team and team.Name == "Inimigos" then  -- Substitua pelo nome da sua equipe
-        -- Apenas permite o aimbot se o jogador estiver na equipe "Inimigos"
-        
-        local mouse = player:GetMouse()
-        local target = nil
-        local closestDistance = math.huge
+-- Função do Aimbot
+local function aimbot()
+    local mouse = player:GetMouse()
+    local target = nil
+    local closestDistance = math.huge
 
-        -- Encontra o alvo mais próximo (outro jogador da equipe adversária)
-        for _, otherPlayer in pairs(game.Players:GetPlayers()) do
-            if otherPlayer ~= player and otherPlayer.Team.Name ~= player.Team.Name then
-                local targetCharacter = otherPlayer.Character
-                if targetCharacter and targetCharacter:FindFirstChild("HumanoidRootPart") then
-                    local distance = (mouse.Hit.p - targetCharacter.HumanoidRootPart.Position).Magnitude
-                    if distance < closestDistance then
-                        target = targetCharacter
-                        closestDistance = distance
-                    end
+    -- Encontra o alvo mais próximo (outro jogador da equipe adversária)
+    for _, otherPlayer in pairs(game.Players:GetPlayers()) do
+        if otherPlayer ~= player and otherPlayer.Team.Name ~= player.Team.Name then
+            local targetCharacter = otherPlayer.Character
+            if targetCharacter and targetCharacter:FindFirstChild("HumanoidRootPart") then
+                local distance = (mouse.Hit.p - targetCharacter.HumanoidRootPart.Position).Magnitude
+                if distance < closestDistance then
+                    target = targetCharacter
+                    closestDistance = distance
                 end
             end
         end
+    end
 
-        -- Aiming (mira para o alvo mais próximo)
-        if target then
-            local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
-            if humanoidRootPart then
-                local direction = (target.HumanoidRootPart.Position - humanoidRootPart.Position).unit
-                local ray = Ray.new(humanoidRootPart.Position, direction * 1000)  -- Define o alcance da mira
-                local hitPart, hitPosition = workspace:FindPartOnRay(ray, character)
+    -- Mira para o alvo mais próximo
+    if target then
+        local humanoidRootPart = player.Character:FindFirstChild("HumanoidRootPart")
+        if humanoidRootPart then
+            local direction = (target.HumanoidRootPart.Position - humanoidRootPart.Position).unit
+            local ray = Ray.new(humanoidRootPart.Position, direction * 1000)  -- Define o alcance da mira
+            local hitPart, hitPosition = workspace:FindPartOnRay(ray, player.Character)
 
-                -- Aqui você pode simular o disparo ou a ação de atirar
-                -- Exemplo:
-                print(player.Name .. " está mirando em " .. target.Name)
-            end
+            -- Aqui você pode simular o disparo ou a ação de atirar
+            -- Exemplo:
+            print(player.Name .. " está mirando em " .. target.Name)
         end
     end
 end
@@ -251,6 +112,6 @@ end)
 -- Função para executar o Aimbot enquanto o jogador estiver na partida
 game:GetService("RunService").RenderStepped:Connect(function()
     if aimbotActive then
-        aimbotWithTeamCheck(player)  -- Executa o aimbot a cada frame
+        aimbot()  -- Executa o aimbot a cada frame
     end
 end)
