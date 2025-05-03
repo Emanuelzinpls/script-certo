@@ -62,6 +62,7 @@ wallhackButton.Parent = frame
 -- Controle de ativação do Wallhack
 local wallhackActive = false  -- Controle de ativação do Wallhack
 local healthBars = {}  -- Armazena as barras de vida para cada jogador
+local originalColors = {}  -- Armazena as cores originais para restaurar
 
 -- Função para ativar/desativar o Wallhack
 wallhackButton.MouseButton1Click:Connect(function()
@@ -80,7 +81,11 @@ wallhackButton.MouseButton1Click:Connect(function()
                 -- Restaurando a aparência do jogador
                 for _, part in pairs(character:GetChildren()) do
                     if part:IsA("MeshPart") or part:IsA("Part") then
-                        part.BrickColor = BrickColor.new("Bright blue")  -- Cor original ou qualquer outra
+                        if originalColors[otherPlayer] and originalColors[otherPlayer][part] then
+                            part.BrickColor = originalColors[otherPlayer][part]  -- Restaurando a cor original
+                        else
+                            part.BrickColor = BrickColor.new("Bright blue")  -- Cor original ou qualquer outra
+                        end
                         part.Transparency = 0  -- Restaurando a opacidade
                     end
                 end
@@ -101,14 +106,18 @@ local function deactivateAllFunctions()
     wallhackButton.Text = "Ativar Wallhack"
     print("Wallhack Desativado Programaticamente")
     
-    -- Desfazendo o Wallhack em todos os jogadores
+    -- Restaurar todos os jogadores para o estado original
     for _, otherPlayer in pairs(game.Players:GetPlayers()) do
         if otherPlayer.Character and otherPlayer ~= player then
             local character = otherPlayer.Character
             -- Restaurando a aparência do jogador
             for _, part in pairs(character:GetChildren()) do
                 if part:IsA("MeshPart") or part:IsA("Part") then
-                    part.BrickColor = BrickColor.new("Bright blue")  -- Cor original ou qualquer outra
+                    if originalColors[otherPlayer] and originalColors[otherPlayer][part] then
+                        part.BrickColor = originalColors[otherPlayer][part]  -- Restaurando a cor original
+                    else
+                        part.BrickColor = BrickColor.new("Bright blue")  -- Cor original ou qualquer outra
+                    end
                     part.Transparency = 0  -- Restaurando a opacidade
                 end
             end
@@ -150,6 +159,12 @@ local function wallhack(character)
             -- Tornar o personagem semi-transparente para "wallhack"
             for _, part in pairs(character:GetChildren()) do
                 if part:IsA("MeshPart") or part:IsA("Part") then
+                    -- Armazenando a cor original antes de alterar
+                    if not originalColors[game.Players:GetPlayerFromCharacter(character)] then
+                        originalColors[game.Players:GetPlayerFromCharacter(character)] = {}
+                    end
+                    originalColors[game.Players:GetPlayerFromCharacter(character)][part] = part.BrickColor
+
                     -- Define a cor preta bem forte e destacada
                     part.BrickColor = BrickColor.new("Really black")  -- Usando a cor "Really black" que é o preto mais forte
                     part.Transparency = 0.5  -- Aplica transparência para ver através das paredes
