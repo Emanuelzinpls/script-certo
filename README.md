@@ -2,9 +2,6 @@
 local player = game.Players.LocalPlayer
 local camera = game.Workspace.CurrentCamera
 
--- Carregar a imagem do asset
-local imageId = "rbxassetid://83989293704732"  -- ID da imagem fornecida
-
 -- Criar o painel flutuante
 local gui = Instance.new("ScreenGui")
 gui.Name = "XurrascoPanel"
@@ -90,28 +87,6 @@ local function wallhack(character)
     end
 end
 
--- Função para criar a imagem acima da cabeça dos jogadores
-local function criarImagemAcimaDaCabeça(player)
-    local character = player.Character
-    if character and character:FindFirstChild("Head") then
-        -- Criar um BillboardGui
-        local billboardGui = Instance.new("BillboardGui")
-        billboardGui.Adornee = character:WaitForChild("Head")  -- Coloca acima da cabeça do player
-        billboardGui.Size = UDim2.new(0, 100, 0, 100)  -- Tamanho da imagem
-        billboardGui.StudsOffset = Vector3.new(0, 2, 0)  -- Distância acima da cabeça
-
-        -- Criar uma ImageLabel dentro do BillboardGui
-        local imageLabel = Instance.new("ImageLabel")
-        imageLabel.Parent = billboardGui
-        imageLabel.Size = UDim2.new(1, 0, 1, 0)  -- Tamanho da imagem
-        imageLabel.Image = imageId  -- Definir a imagem com o ID
-        imageLabel.BackgroundTransparency = 1  -- Remover fundo
-
-        -- Adicionar o BillboardGui ao personagem do player
-        billboardGui.Parent = character:WaitForChild("Head")
-    end
-end
-
 -- Função para criar a barra de vida dos jogadores
 local function createHealthBar(character)
     if character and character:FindFirstChild("Humanoid") then
@@ -144,7 +119,7 @@ local function createHealthBar(character)
     end
 end
 
--- Função para aplicar Wallhack, barra de vida e imagem acima da cabeça
+-- Função para aplicar Wallhack e barra de vida
 local function applyWallhackAndHealthBar()
     for _, otherPlayer in pairs(game.Players:GetPlayers()) do
         if otherPlayer.Character and otherPlayer ~= player then
@@ -153,9 +128,6 @@ local function applyWallhackAndHealthBar()
             
             -- Cria a barra de vida
             createHealthBar(otherPlayer.Character)
-            
-            -- Cria a imagem acima da cabeça
-            criarImagemAcimaDaCabeça(otherPlayer)
         end
     end
 end
@@ -163,6 +135,6 @@ end
 -- Função para ativar o Wallhack enquanto o jogador estiver na partida
 game:GetService("RunService").RenderStepped:Connect(function()
     if wallhackActive then
-        applyWallhackAndHealthBar()  -- Aplica o wallhack, a barra de vida e a imagem acima da cabeça a cada frame
+        applyWallhackAndHealthBar()  -- Aplica o wallhack e a barra de vida a cada frame
     end
 end)
