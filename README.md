@@ -10,7 +10,7 @@ local aimbotNpcActive = false
 
 -- Desenhar FOV
 local fovCircle = Drawing.new("Circle")
-fovCircle.Visible = true
+fovCircle.Visible = false  -- Inicialmente invisível
 fovCircle.Radius = fovRadius
 fovCircle.Position = Vector2.new(camera.ViewportSize.X / 2, camera.ViewportSize.Y / 2)
 fovCircle.Color = Color3.new(1, 1, 0)
@@ -108,7 +108,13 @@ aimbotNpcButton.Parent = frame
 -- Função para ativar/desativar o Aimbot NPC
 aimbotNpcButton.MouseButton1Click:Connect(function()
     aimbotNpcActive = not aimbotNpcActive
-    aimbotNpcButton.Text = aimbotNpcActive and "Desativar Aimbot NPC" or "Ativar Aimbot NPC"
+    if aimbotNpcActive then
+        fovCircle.Visible = true  -- Ativa o FOV
+        aimbotNpcButton.Text = "Desativar Aimbot NPC"
+    else
+        fovCircle.Visible = false  -- Desativa o FOV
+        aimbotNpcButton.Text = "Ativar Aimbot NPC"
+    end
 end)
 
 -- Executa o Aimbot NPC se estiver ativo
