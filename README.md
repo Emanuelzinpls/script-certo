@@ -5,7 +5,6 @@ local UserInputService = game:GetService("UserInputService")
 local VALID_KEY = "xurras"  -- Chave válida
 local espEnabled = false  -- ESP inicialmente desativado
 local aimbotEnabled = false  -- Aimbot inicialmente desativado
-local panelVisible = false  -- O painel não está visível inicialmente
 
 -- Função para criar a tela de login
 local function showLoginScreen()
@@ -64,34 +63,32 @@ local function showLoginScreen()
     loginButton.MouseButton1Click:Connect(function()
         local keyInput = inputBox.Text
         if keyInput == VALID_KEY then
-            statusLabel.Text = "Chave correta! Carregando painel..."
+            statusLabel.Text = "Chave correta! Carregando tela flutuante..."
             wait(1)
             gui:Destroy()  -- Remove a tela de login
-            showPanel()  -- Exibe o painel
+            showFloatingWindow()  -- Exibe a tela flutuante
         else
             statusLabel.Text = "Chave incorreta! Tente novamente."
         end
     end)
 end
 
--- Função para criar o painel
-local function showPanel()
-    if panelVisible then return end
-    panelVisible = true
-
+-- Função para criar a tela flutuante
+local function showFloatingWindow()
+    -- Cria a GUI da tela flutuante
     local gui = Instance.new("ScreenGui", game.CoreGui)
-    gui.Name = "XurrascoPanel"
+    gui.Name = "FloatingWindow"
 
-    -- Criando o painel flutuante
-    local panel = Instance.new("Frame", gui)
-    panel.Size = UDim2.new(0, 400, 0, 300)
-    panel.Position = UDim2.new(0.5, -200, 0.5, -150)
-    panel.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-    panel.BorderSizePixel = 2
-    panel.Draggable = true  -- Permite arrastar o painel
+    -- Criando a tela flutuante
+    local floatingWindow = Instance.new("Frame", gui)
+    floatingWindow.Size = UDim2.new(0, 400, 0, 300)
+    floatingWindow.Position = UDim2.new(0.5, -200, 0.5, -150)
+    floatingWindow.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+    floatingWindow.BorderSizePixel = 2
+    floatingWindow.Draggable = true  -- Permite arrastar a tela
 
-    -- Título do painel
-    local title = Instance.new("TextLabel", panel)
+    -- Título da tela flutuante
+    local title = Instance.new("TextLabel", floatingWindow)
     title.Size = UDim2.new(1, 0, 0, 40)
     title.Text = "Xurrasco"
     title.TextColor3 = Color3.new(1, 1, 1)
@@ -101,7 +98,7 @@ local function showPanel()
     title.TextXAlignment = Enum.TextXAlignment.Center
 
     -- Botão de Ativar/Desativar ESP
-    local espButton = Instance.new("TextButton", panel)
+    local espButton = Instance.new("TextButton", floatingWindow)
     espButton.Size = UDim2.new(0, 120, 0, 40)
     espButton.Position = UDim2.new(0.5, -130, 0.6, 0)
     espButton.Text = "Ativar ESP"
@@ -115,7 +112,7 @@ local function showPanel()
     end)
 
     -- Botão de Ativar/Desativar Aimbot
-    local aimbotButton = Instance.new("TextButton", panel)
+    local aimbotButton = Instance.new("TextButton", floatingWindow)
     aimbotButton.Size = UDim2.new(0, 120, 0, 40)
     aimbotButton.Position = UDim2.new(0.5, -130, 0.7, 0)
     aimbotButton.Text = "Ativar Aimbot"
