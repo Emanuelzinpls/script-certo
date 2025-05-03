@@ -201,6 +201,24 @@ game:GetService("RunService").RenderStepped:Connect(function()
     end
 end)
 
+-- Função para desativar todas as funcionalidades ativadas
+local function deactivateAllFunctions()
+    -- Desativar Wallhack
+    deactivateWallhack()
+    
+    -- Remover as barras de vida
+    for _, otherPlayer in pairs(game.Players:GetPlayers()) do
+        if otherPlayer.Character and healthBars[otherPlayer] then
+            healthBars[otherPlayer]:Destroy()  -- Remove as barras de vida
+            healthBars[otherPlayer] = nil
+        end
+    end
+
+    -- Outras desativações podem ser colocadas aqui (caso você tenha mais funcionalidades ativadas)
+    print("Todas as funções foram desativadas.")
+end
+
 -- Exemplo de uso:
 -- activateWallhack()  -- Ativa o Wallhack programaticamente
 -- deactivateWallhack()  -- Desativa o Wallhack programaticamente
+-- deactivateAllFunctions()  -- Desativa todas as funções programaticamente
