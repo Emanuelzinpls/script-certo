@@ -91,6 +91,28 @@ createButton("Função Aimbot", 100, function()
     -- Insira seu código de Aimbot aqui
 end)
 
+-- Função para permitir o movimento do ícone "brr brr patapim"
+local isIconDragging = false
+local dragStart = Vector2.new()
+local iconStartPos = UDim2.new(0.5, -25, 0.5, -100)
+
+minimizeIcon.MouseButton1Down:Connect(function(input)
+    isIconDragging = true
+    dragStart = input.Position
+    iconStartPos = minimizeIcon.Position
+end)
+
+game:GetService("UserInputService").InputChanged:Connect(function(input)
+    if isIconDragging then
+        local delta = input.Position - dragStart
+        minimizeIcon.Position = UDim2.new(iconStartPos.X.Scale, iconStartPos.X.Offset + delta.X, iconStartPos.Y.Scale, iconStartPos.Y.Offset + delta.Y)
+    end
+end)
+
+minimizeIcon.MouseButton1Up:Connect(function()
+    isIconDragging = false
+end)
+
 -- Permitir arrastar o painel (apenas o painel, não o ícone)
 frame.MouseButton1Down:Connect(function(input)
     local dragStart = input.Position
@@ -107,25 +129,4 @@ frame.MouseButton1Down:Connect(function(input)
     frame.MouseButton1Up:Connect(function()
         dragging = false
     end)
-end)
-
--- Permitir arrastar o ícone (agora o ícone pode ser movido também)
-local isIconDragging = false
-local iconStartPos = UDim2.new(0.5, -25, 0.5, -100) -- Posição inicial do ícone
-
-minimizeIcon.MouseButton1Down:Connect(function(input)
-    isIconDragging = true
-    local dragStart = input.Position
-    iconStartPos = minimizeIcon.Position
-
-    game:GetService("UserInputService").InputChanged:Connect(function(input)
-        if isIconDragging then
-            local delta = input.Position - dragStart
-            minimizeIcon.Position = UDim2.new(iconStartPos.X.Scale, iconStartPos.X.Offset + delta.X, iconStartPos.Y.Scale, iconStartPos.Y.Offset + delta.Y)
-        end
-    end)
-end)
-
-minimizeIcon.MouseButton1Up:Connect(function()
-    isIconDragging = false
 end)
