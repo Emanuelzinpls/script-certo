@@ -9,6 +9,7 @@ gui.ResetOnSpawn = false
 gui.IgnoreGuiInset = true
 gui.Parent = LocalPlayer:WaitForChild("PlayerGui")
 
+-- Criar o frame principal do painel
 local frame = Instance.new("Frame")
 frame.Size = UDim2.new(0, 400, 0, 250)
 frame.Position = UDim2.new(0.5, -200, 0.5, -125)
@@ -18,7 +19,7 @@ frame.Active = true
 frame.Draggable = true
 frame.Parent = gui
 
--- Imagem de fundo
+-- Imagem de fundo do painel
 local bg = Instance.new("ImageLabel")
 bg.Size = UDim2.new(1, 0, 1, 0)
 bg.Position = UDim2.new(0, 0, 0, 0)
@@ -27,7 +28,7 @@ bg.Image = "rbxassetid://86404027639991"  -- "brr brr patapim"
 bg.ImageTransparency = 0.3
 bg.Parent = frame
 
--- Título
+-- Título do painel
 local title = Instance.new("TextLabel")
 title.Size = UDim2.new(1, 0, 0, 40)
 title.Position = UDim2.new(0, 0, 0, 0)
@@ -57,23 +58,19 @@ local function createButton(text, yPos, callback)
     button.MouseButton1Click:Connect(callback)
 end
 
--- Botão de Minimizar no topo
-local minimizeButton = Instance.new("TextButton")
-minimizeButton.Size = UDim2.new(0, 100, 0, 40)
-minimizeButton.Position = UDim2.new(1, -110, 0, 0)
-minimizeButton.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-minimizeButton.TextColor3 = Color3.new(1, 1, 1)
-minimizeButton.Text = "🗕 Minimizar"
-minimizeButton.Font = Enum.Font.Gotham
-minimizeButton.TextSize = 16
-minimizeButton.Parent = frame
+-- Criando o ícone flutuante de minimização
+local minimizeIcon = Instance.new("ImageButton")
+minimizeIcon.Size = UDim2.new(0, 50, 0, 50)
+minimizeIcon.Position = UDim2.new(0.5, -25, 0.5, -25)
+minimizeIcon.BackgroundTransparency = 1
+minimizeIcon.Image = "rbxassetid://86404027639991"  -- Ícone "brr brr patapim"
+minimizeIcon.Visible = true
+minimizeIcon.Parent = gui
 
-local uicornerMin = Instance.new("UICorner")
-uicornerMin.CornerRadius = UDim.new(0, 8)
-uicornerMin.Parent = minimizeButton
-
-minimizeButton.MouseButton1Click:Connect(function()
+-- Minimizar painel para o ícone
+minimizeIcon.MouseButton1Click:Connect(function()
     frame.Visible = false
+    minimizeIcon.Visible = false
 end)
 
 -- Função de ESP para mostrar jogadores próximos
@@ -117,17 +114,4 @@ end)
 -- Simular aimbot (só para visualização)
 createButton("🎯 Simular Aimbot", 150, function()
     local target = workspace:FindFirstChild("AimbotTarget")
-    if target and target:IsA("Model") then
-        local camera = workspace.CurrentCamera
-        camera.CameraSubject = target
-        camera.CFrame = target.PrimaryPart.CFrame
-    end
-end)
-
--- Exibir painel novamente ao pressionar F6
-local UserInputService = game:GetService("UserInputService")
-UserInputService.InputBegan:Connect(function(input, processed)
-    if not processed and input.KeyCode == Enum.KeyCode.F6 then
-        frame.Visible = not frame.Visible
-    end
-end)
+    if target and target
