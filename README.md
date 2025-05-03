@@ -48,6 +48,11 @@ iconButton.MouseButton1Click:Connect(function()
     frame.Visible = not frame.Visible  -- Alterna a visibilidade do painel
 end)
 
+-- Controle de ativação do Wallhack
+local wallhackActive = false  -- Controle de ativação do Wallhack
+local healthBars = {}  -- Armazena as barras de vida para cada jogador
+local originalColors = {}  -- Armazenando as cores originais para restaurar
+
 -- Botão para ativar/desativar o Wallhack
 local wallhackButton = Instance.new("TextButton")
 wallhackButton.Size = UDim2.new(0, 150, 0, 40)
@@ -58,11 +63,6 @@ wallhackButton.Font = Enum.Font.GothamBold
 wallhackButton.TextSize = 18
 wallhackButton.TextColor3 = Color3.new(1, 1, 1)
 wallhackButton.Parent = frame
-
--- Controle de ativação do Wallhack
-local wallhackActive = false  -- Controle de ativação do Wallhack
-local healthBars = {}  -- Armazena as barras de vida para cada jogador
-local originalColors = {}  -- Armazena as cores originais para restaurar
 
 -- Função para ativar/desativar o Wallhack
 wallhackButton.MouseButton1Click:Connect(function()
@@ -97,56 +97,6 @@ wallhackButton.MouseButton1Click:Connect(function()
             end
         end
     end
-end)
-
--- Função para desativar todas as funcionalidades ativadas
-local function deactivateAllFunctions()
-    -- Desativar Wallhack
-    wallhackActive = false
-    wallhackButton.Text = "Ativar Wallhack"
-    print("Wallhack Desativado Programaticamente")
-    
-    -- Restaurar todos os jogadores para o estado original
-    for _, otherPlayer in pairs(game.Players:GetPlayers()) do
-        if otherPlayer.Character and otherPlayer ~= player then
-            local character = otherPlayer.Character
-            -- Restaurando a aparência do jogador
-            for _, part in pairs(character:GetChildren()) do
-                if part:IsA("MeshPart") or part:IsA("Part") then
-                    if originalColors[otherPlayer] and originalColors[otherPlayer][part] then
-                        part.BrickColor = originalColors[otherPlayer][part]  -- Restaurando a cor original
-                    else
-                        part.BrickColor = BrickColor.new("Bright blue")  -- Cor original ou qualquer outra
-                    end
-                    part.Transparency = 0  -- Restaurando a opacidade
-                end
-            end
-            -- Remover a barra de vida, se existir
-            if healthBars[otherPlayer] then
-                healthBars[otherPlayer]:Destroy()
-                healthBars[otherPlayer] = nil
-            end
-        end
-    end
-
-    -- Outras desativações podem ser colocadas aqui (caso você tenha mais funcionalidades ativadas)
-    print("Todas as funções foram desativadas.")
-end
-
--- Botão para desativar todas as funções
-local deactivateButton = Instance.new("TextButton")
-deactivateButton.Size = UDim2.new(0, 150, 0, 40)
-deactivateButton.Position = UDim2.new(0.5, -75, 0, 110)  -- Posição abaixo do Wallhack
-deactivateButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0)  -- Cor vermelha para desativação
-deactivateButton.Text = "Desativar Todas Funções"
-deactivateButton.Font = Enum.Font.GothamBold
-deactivateButton.TextSize = 18
-deactivateButton.TextColor3 = Color3.new(1, 1, 1)
-deactivateButton.Parent = frame
-
--- Conectar o botão de desativar todas as funções
-deactivateButton.MouseButton1Click:Connect(function()
-    deactivateAllFunctions()  -- Chama a função que desativa todas as funcionalidades
 end)
 
 -- Função para tornar os jogadores visíveis atrás das paredes e deixá-los de cor preta forte
@@ -228,3 +178,77 @@ game:GetService("RunService").RenderStepped:Connect(function()
         applyWallhackAndHealthBar()  -- Aplica o wallhack e a barra de vida a cada frame
     end
 end)
+
+-- Função de Aimbot com verificação de equipe
+local function aimbotWithTeamCheck(player)
+    local character = player.Character
+    if not character then return end
+    
+    -- Verifica se o jogador está na equipe correta
+    local team = player.Team
+    if team and team.Name == "Inimigos" then  -- Substitua pelo nome da sua equipe
+        -- Apenas permite o aimbot se o jogador estiver na equipe "Inimigos"
+        
+        local mouse = player:GetMouse()
+        local target = nil
+        local closestDistance = math.huge
+
+        -- Encontra o alvo mais próximo (outro jogador da equipe adversária)
+        for _, otherPlayer in pairs(game.Players:GetPlayers()) do
+            if otherPlayer ~= player and otherPlayer.Team.Name ~= player.Team.Name then
+                local targetCharacter = otherPlayer.Character
+                if targetCharacter and targetCharacter:FindFirstChild("HumanoidRootPart") then
+                    local distance = (mouse.Hit.p - targetCharacter.HumanoidRootPart.Position).Magnitude
+                    if distance < closestDistance then
+                        target = targetCharacter
+                        closestDistance = distance
+                    end
+                end
+            end
+        end
+
+        -- Aiming (mira para o alvo mais próximo)
+        if target then
+            local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
+            if humanoidRootPart then
+                local direction = (target.HumanoidRootPart.Position - humanoidRootPart.Position).unit
+                local ray = Ray.new(humanoidRootPart.Position, direction * 1000)  -- Define o alcance da mira
+                local hitPart, hitPosition = workspace:FindPartOnRay(ray, character)
+
+                -- Aqui você pode simular o disparo ou a ação de atirar
+                -- Exemplo:
+                print(player.Name .. " está mirando em " .. target.Name)
+            end
+        end
+    end
+end
+
+-- Criar botão do Aimbot
+local aimbotButton = Instance.new("TextButton")
+aimbotButton.Size = UDim2.new(0, 150, 0, 40)
+aimbotButton.Position = UDim2.new(0.5, -75, 0, 110)
+aimbotButton.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
+aimbotButton.Text = "Ativar Aimbot"
+aimbotButton.Font = Enum.Font.GothamBold
+aimbotButton.TextSize = 18
+aimbotButton.TextColor3 = Color3.new(1, 1, 1)
+aimbotButton.Parent = frame
+
+-- Controle de ativação do Aimbot
+local aimbotActive = false  -- Controle de ativação do Aimbot
+
+-- Função para ativar/desativar o Aimbot
+aimbotButton.MouseButton1Click:Connect(function()
+    aimbotActive = not aimbotActive
+    if aimbotActive then
+        aimbotButton.Text = "Desativar Aimbot"
+        print("Aimbot Ativado")
+    else
+        aimbotButton.Text = "Ativar Aimbot"
+        print("Aimbot Desativado")
+    end
+end)
+
+-- Função para aplicar o Aimbot enquanto o jogador estiver na partida
+game:GetService("RunService").RenderStepped:Connect(function()
+    if aimbot
