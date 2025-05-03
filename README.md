@@ -62,7 +62,7 @@ end
 -- Criando o ícone flutuante de minimização com o meme italiano (ID fornecido)
 local minimizeIcon = Instance.new("ImageButton")
 minimizeIcon.Size = UDim2.new(0, 50, 0, 50)
-minimizeIcon.Position = UDim2.new(0.5, -25, 0.5, -100)  -- Posiciona o ícone no meio
+minimizeIcon.Position = UDim2.new(0.5, -25, 0, 10)  -- Ícone no topo da tela (fixo no topo)
 minimizeIcon.BackgroundTransparency = 1
 minimizeIcon.Image = "rbxassetid://105182366707019"  -- Ícone do meme "brr brr patapim" com o novo ID
 minimizeIcon.Visible = true
@@ -94,7 +94,7 @@ end)
 -- Função para permitir o movimento do ícone "brr brr patapim"
 local isIconDragging = false
 local dragStart = Vector2.new()
-local iconStartPos = UDim2.new(0.5, -25, 0.5, -100)
+local iconStartPos = UDim2.new(0.5, -25, 0, 10)
 
 minimizeIcon.MouseButton1Down:Connect(function(input)
     isIconDragging = true
