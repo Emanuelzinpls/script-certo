@@ -40,8 +40,8 @@ iconButton.Image = "rbxassetid://105182366707019"  -- Coloque o ID do seu asset 
 iconButton.Parent = gui
 
 -- Desabilitar a funcionalidade de arrastar o ícone
-iconButton.Active = true  -- Permite interação, mas sem a capacidade de mover
-iconButton.Draggable = false  -- Desabilita o movimento do ícone
+iconButton.Active = false  -- Permite interação, mas sem a capacidade de mover
+iconButton.Draggable = true  -- Desabilita o movimento do ícone
 
 -- Funcionalidade para abrir e minimizar o painel ao clicar no ícone
 iconButton.MouseButton1Click:Connect(function()
