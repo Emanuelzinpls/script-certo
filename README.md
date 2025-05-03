@@ -70,4 +70,24 @@ local function showFloatingWindow()
     minimizeButton.Position = UDim2.new(1, -40, 0, 0)
     minimizeButton.Text = "-"
     minimizeButton.TextColor3 = Color3.new(1, 1, 1)
-    minimizeButton.BackgroundColor3 = Color3.fromRGB(
+    minimizeButton.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+    minimizeButton.Font = Enum.Font.SourceSans
+    minimizeButton.TextSize = 24
+
+    -- Função para minimizar
+    local isMinimized = false
+    minimizeButton.MouseButton1Click:Connect(function()
+        if not isMinimized then
+            floatingWindow.Size = UDim2.new(0, 400, 0, 40)  -- Reduz a altura para apenas o título
+            categoriesFrame.Visible = false  -- Esconde a área de categorias (ESP e Aimbot)
+            isMinimized = true
+        else
+            floatingWindow.Size = UDim2.new(0, 400, 0, 300)  -- Restaura o tamanho original
+            categoriesFrame.Visible = true  -- Mostra a área de categorias novamente
+            isMinimized = false
+        end
+    end)
+end
+
+-- Exibe a tela flutuante assim que o script iniciar
+showFloatingWindow()
