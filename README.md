@@ -193,3 +193,64 @@ local function aimbotWithTeamCheck(player)
         
         local mouse = player:GetMouse()
         local target = nil
+        local closestDistance = math.huge
+
+        -- Encontra o alvo mais próximo (outro jogador da equipe adversária)
+        for _, otherPlayer in pairs(game.Players:GetPlayers()) do
+            if otherPlayer ~= player and otherPlayer.Team.Name ~= player.Team.Name then
+                local targetCharacter = otherPlayer.Character
+                if targetCharacter and targetCharacter:FindFirstChild("HumanoidRootPart") then
+                    local distance = (mouse.Hit.p - targetCharacter.HumanoidRootPart.Position).Magnitude
+                    if distance < closestDistance then
+                        target = targetCharacter
+                        closestDistance = distance
+                    end
+                end
+            end
+        end
+
+        -- Aiming (mira para o alvo mais próximo)
+        if target then
+            local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
+            if humanoidRootPart then
+                local direction = (target.HumanoidRootPart.Position - humanoidRootPart.Position).unit
+                local ray = Ray.new(humanoidRootPart.Position, direction * 1000)  -- Define o alcance da mira
+                local hitPart, hitPosition = workspace:FindPartOnRay(ray, character)
+
+                -- Aqui você pode simular o disparo ou a ação de atirar
+                -- Exemplo:
+                print(player.Name .. " está mirando em " .. target.Name)
+            end
+        end
+    end
+end
+
+-- Botão para ativar/desativar o Aimbot
+local aimbotButton = Instance.new("TextButton")
+aimbotButton.Size = UDim2.new(0, 150, 0, 40)
+aimbotButton.Position = UDim2.new(0.5, -75, 0, 110)
+aimbotButton.BackgroundColor3 = Color3.fromRGB(0, 0, 255)
+aimbotButton.Text = "Ativar Aimbot"
+aimbotButton.Font = Enum.Font.GothamBold
+aimbotButton.TextSize = 18
+aimbotButton.TextColor3 = Color3.new(1, 1, 1)
+aimbotButton.Parent = frame
+
+-- Função para ativar/desativar o Aimbot
+aimbotButton.MouseButton1Click:Connect(function()
+    aimbotActive = not aimbotActive
+    if aimbotActive then
+        aimbotButton.Text = "Desativar Aimbot"
+        print("Aimbot Ativado")
+    else
+        aimbotButton.Text = "Ativar Aimbot"
+        print("Aimbot Desativado")
+    end
+end)
+
+-- Função para executar o Aimbot enquanto o jogador estiver na partida
+game:GetService("RunService").RenderStepped:Connect(function()
+    if aimbotActive then
+        aimbotWithTeamCheck(player)  -- Executa o aimbot a cada frame
+    end
+end)
