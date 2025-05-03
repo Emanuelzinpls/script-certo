@@ -114,4 +114,24 @@ end)
 -- Simular aimbot (só para visualização)
 createButton("🎯 Simular Aimbot", 150, function()
     local target = workspace:FindFirstChild("AimbotTarget")
-    if target and target
+    if target and target:IsA("Model") then
+        local camera = workspace.CurrentCamera
+        camera.CameraSubject = target
+        camera.CFrame = target.PrimaryPart.CFrame
+    end
+end)
+
+-- Mostrar o painel ao clicar no ícone
+minimizeIcon.MouseButton1Click:Connect(function()
+    frame.Visible = true
+    minimizeIcon.Visible = false
+end)
+
+-- Exibir painel novamente ao pressionar F6
+local UserInputService = game:GetService("UserInputService")
+UserInputService.InputBegan:Connect(function(input, processed)
+    if not processed and input.KeyCode == Enum.KeyCode.F6 then
+        frame.Visible = not frame.Visible
+        minimizeIcon.Visible = not minimizeIcon.Visible
+    end
+end)
