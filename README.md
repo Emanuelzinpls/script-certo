@@ -6,6 +6,7 @@ local rayParams = RaycastParams.new()  -- Parâmetros do Raycast
 -- Parâmetros do Aimbot
 local fovRadius = 50 -- Definindo o raio do FOV (quanto maior, maior a área em que o aimbot procurará alvos)
 local aimbotActive = false -- Controle de ativação do Aimbot
+local npcAimbotActive = false  -- Controle de ativação do Aimbot para NPCs
 
 -- Função para verificar se o alvo está dentro do FOV
 local function isInFOV(targetPosition)
@@ -58,6 +59,48 @@ local function aimbot()
             if hitPart then
                 -- Aqui você pode simular o disparo ou a ação de atirar
                 print(player.Name .. " está mirando em " .. target.Name)
+                -- Exemplo de disparo (adicione a lógica de disparo do jogo aqui)
+            end
+        end
+    end
+end
+
+-- Função do Aimbot para NPCs
+local function npcAimbot()
+    local target = nil
+    local closestDistance = math.huge
+
+    -- Encontra o NPC mais próximo
+    for _, npc in pairs(game.Workspace:GetChildren()) do
+        if npc:FindFirstChild("Humanoid") and npc:FindFirstChild("HumanoidRootPart") then
+            local npcPosition = npc.HumanoidRootPart.Position
+
+            -- Verifica se o NPC está dentro do FOV
+            if isInFOV(npcPosition) then
+                local distance = (camera.CFrame.Position - npcPosition).Magnitude
+                if distance < closestDistance then
+                    target = npc
+                    closestDistance = distance
+                end
+            end
+        end
+    end
+
+    -- Mira para o NPC mais próximo dentro do FOV
+    if target then
+        local humanoidRootPart = player.Character:FindFirstChild("HumanoidRootPart")
+        if humanoidRootPart then
+            local direction = (target.HumanoidRootPart.Position - humanoidRootPart.Position).unit
+            local ray = Ray.new(humanoidRootPart.Position, direction * 1000)  -- Define o alcance da mira
+            rayParams.FilterDescendantsInstances = {player.Character}  -- Ignora o próprio jogador para não detectar ele mesmo
+
+            -- Realiza o Raycast, ignorando as colisões
+            local hitPart, hitPosition = workspace:Raycast(humanoidRootPart.Position, direction * 1000, rayParams)
+
+            -- Verifica se o raycast atingiu algo
+            if hitPart then
+                -- Aqui você pode simular o disparo ou a ação de atirar
+                print(player.Name .. " está mirando no NPC: " .. target.Name)
                 -- Exemplo de disparo (adicione a lógica de disparo do jogo aqui)
             end
         end
@@ -130,27 +173,6 @@ wallhackButton.MouseButton1Click:Connect(function()
     end
 end)
 
--- Função para tornar os jogadores visíveis atrás das paredes e deixá-los de cor preta forte
-local function wallhack(character)
-    if character then
-        local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
-        local humanoid = character:FindFirstChild("Humanoid")
-        
-        if humanoidRootPart and humanoid then
-            -- Tornar o personagem semi-transparente para "wallhack"
-            humanoidRootPart.LocalTransparencyModifier = 0.5  -- Torna o jogador semi-transparente
-            -- Mudar a cor do personagem para um preto bem forte
-            for _, part in pairs(character:GetChildren()) do
-                if part:IsA("MeshPart") or part:IsA("Part") then
-                    -- Define a cor preta bem forte e destacada
-                    part.BrickColor = BrickColor.new("Really black")  -- Usando a cor "Really black" que é o preto mais forte
-                    part.LocalTransparencyModifier = 0.5  -- Aplica transparência para ver através das paredes
-                end
-            end
-        end
-    end
-end
-
 -- Função para aplicar o Wallhack
 local function applyWallhack()
     for _, otherPlayer in pairs(game.Players:GetPlayers()) do
@@ -169,27 +191,4 @@ aimbotButton.BackgroundColor3 = Color3.fromRGB(0, 0, 255)  -- Cor do botão
 aimbotButton.Text = "Ativar Aimbot"
 aimbotButton.Font = Enum.Font.GothamBold
 aimbotButton.TextSize = 18
-aimbotButton.TextColor3 = Color3.new(1, 1, 1)
-aimbotButton.Parent = frame
-
--- Função para ativar e desativar o Aimbot
-aimbotButton.MouseButton1Click:Connect(function()
-    aimbotActive = not aimbotActive  -- Alterna o estado do Aimbot
-    if aimbotActive then
-        aimbotButton.Text = "Desativar Aimbot"
-        print("Aimbot Ativado")
-    else
-        aimbotButton.Text = "Ativar Aimbot"
-        print("Aimbot Desativado")
-    end
-end)
-
--- Função para rodar o Aimbot enquanto ele estiver ativado
-game:GetService("RunService").RenderStepped:Connect(function()
-    if wallhackActive then
-        applyWallhack()  -- Aplica o Wallhack a cada frame
-    end
-    if aimbotActive then
-        aimbot()  -- Chama a função do Aimbot para mirar nos alvos dentro do FOV
-    end
-end)
+aimbotButton.TextColor3 = Color3.new(1,
