@@ -59,8 +59,10 @@ wallhackButton.TextSize = 18
 wallhackButton.TextColor3 = Color3.new(1, 1, 1)
 wallhackButton.Parent = frame
 
--- Função para ativar/desativar o Wallhack
+-- Controle de ativação do Wallhack
 local wallhackActive = false  -- Controle de ativação do Wallhack
+
+-- Função para ativar/desativar o Wallhack
 wallhackButton.MouseButton1Click:Connect(function()
     wallhackActive = not wallhackActive
     if wallhackActive then
@@ -71,6 +73,20 @@ wallhackButton.MouseButton1Click:Connect(function()
         print("Wallhack Desativado")
     end
 end)
+
+-- Função para ativar o Wallhack
+local function activateWallhack()
+    wallhackActive = true
+    wallhackButton.Text = "Desativar Wallhack"
+    print("Wallhack Ativado Programaticamente")
+end
+
+-- Função para desativar o Wallhack
+local function deactivateWallhack()
+    wallhackActive = false
+    wallhackButton.Text = "Ativar Wallhack"
+    print("Wallhack Desativado Programaticamente")
+end
 
 -- Função para tornar os jogadores visíveis atrás das paredes e deixá-los de cor preta forte
 local function wallhack(character)
@@ -142,3 +158,8 @@ game:GetService("RunService").RenderStepped:Connect(function()
         applyWallhackAndHealthBar()  -- Aplica o wallhack e a barra de vida a cada frame
     end
 end)
+
+-- Chamando a função para ativar ou desativar o Wallhack de forma programática
+-- Exemplo de uso:
+-- activateWallhack()  -- Ativa o Wallhack
+-- deactivateWallhack()  -- Desativa o Wallhack
