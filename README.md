@@ -18,15 +18,6 @@ frame.Draggable = true
 frame.Parent = gui
 frame.Visible = true
 
--- Imagem de fundo do painel
-local bg = Instance.new("ImageLabel")
-bg.Size = UDim2.new(1, 0, 1, 0)
-bg.Position = UDim2.new(0, 0, 0, 0)
-bg.BackgroundTransparency = 1
-bg.Image = "rbxassetid://86404027639991"  -- Imagem de fundo "brr brr patapim"
-bg.ImageTransparency = 0.3
-bg.Parent = frame
-
 -- Título do painel
 local title = Instance.new("TextLabel")
 title.Size = UDim2.new(1, 0, 0, 40)
@@ -82,7 +73,7 @@ closeButton.MouseButton1Click:Connect(function()
     print("Script Desativado")
 end)
 
--- Criando o ícone flutuante de minimização com o meme italiano (ID fornecido)
+-- Criando o ícone flutuante de minimização
 local minimizeIcon = Instance.new("ImageButton")
 minimizeIcon.Size = UDim2.new(0, 50, 0, 50)
 minimizeIcon.Position = UDim2.new(0.5, -25, 0, 10)  -- Ícone no topo da tela (fixo no topo)
@@ -103,23 +94,45 @@ end
 -- Conecta o clique no ícone ao evento de alternar o painel
 minimizeIcon.MouseButton1Click:Connect(togglePanel)
 
--- Função para aplicar o wallhack (tornar semi-transparente)
-local function wallhack(character)
+-- Função para desenhar linha e mostrar a distância
+local function drawLineToPlayer(character)
     if character and character:FindFirstChild("HumanoidRootPart") then
-        -- Tornar o personagem semi-transparente para ser visto através de paredes
-        for _, part in pairs(character:GetChildren()) do
-            if part:IsA("BasePart") then
-                part.LocalTransparencyModifier = 0.5  -- Torna as partes do personagem semi-transparentes
-            end
-        end
+        -- Criar uma linha entre o jogador e o outro jogador
+        local rootPart = character.HumanoidRootPart
+        local distance = (rootPart.Position - player.Character.HumanoidRootPart.Position).Magnitude
+        
+        -- Criando o part que será a linha
+        local line = Instance.new("Part")
+        line.Size = Vector3.new(0.1, 0.1, distance)
+        line.CFrame = CFrame.new(player.Character.HumanoidRootPart.Position, rootPart.Position) * CFrame.new(0, 0, -distance / 2)
+        line.Anchored = true
+        line.CanCollide = false
+        line.Color = Color3.fromRGB(255, 0, 0)
+        line.Parent = game.Workspace
+        
+        -- Exibindo a distância na tela
+        local distanceLabel = Instance.new("TextLabel")
+        distanceLabel.Text = math.floor(distance) .. " metros"
+        distanceLabel.Position = UDim2.new(0.5, -50, 0.5, -100)
+        distanceLabel.Size = UDim2.new(0, 100, 0, 40)
+        distanceLabel.TextColor3 = Color3.fromRGB(255, 0, 0)
+        distanceLabel.BackgroundTransparency = 1
+        distanceLabel.Font = Enum.Font.GothamBold
+        distanceLabel.TextSize = 18
+        distanceLabel.Parent = gui
+        
+        -- Deletar a linha e o label após 1 segundo
+        wait(1)
+        line:Destroy()
+        distanceLabel:Destroy()
     end
 end
 
 -- Função principal ESP para ativar o Wallhack e mostrar os players
 local function Esp(character)
     if character and character:FindFirstChild("HumanoidRootPart") then
-        -- Aplicar wallhack para o personagem ser visto através das paredes
-        wallhack(character)
+        -- Desenhar linha e calcular distância
+        drawLineToPlayer(character)
     end
 end
 
