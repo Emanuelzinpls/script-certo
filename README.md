@@ -62,6 +62,26 @@ espButton.MouseButton1Click:Connect(function()
     end
 end)
 
+-- Botão de Fechar o Script
+local closeButton = Instance.new("TextButton")
+closeButton.Size = UDim2.new(0, 150, 0, 40)
+closeButton.Position = UDim2.new(0.5, -75, 0, 120)
+closeButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+closeButton.Text = "Fechar Script"
+closeButton.Font = Enum.Font.GothamBold
+closeButton.TextSize = 18
+closeButton.TextColor3 = Color3.new(1, 1, 1)
+closeButton.Parent = frame
+
+-- Função para fechar o script
+closeButton.MouseButton1Click:Connect(function()
+    -- Desabilitar o painel e todas as funções
+    frame.Visible = false
+    espActive = false  -- Desativar o ESP
+    espButton.Text = "Ativar ESP"
+    print("Script Desativado")
+end)
+
 -- Criando o ícone flutuante de minimização com o meme italiano (ID fornecido)
 local minimizeIcon = Instance.new("ImageButton")
 minimizeIcon.Size = UDim2.new(0, 50, 0, 50)
