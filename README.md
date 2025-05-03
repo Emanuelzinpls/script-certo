@@ -1,10 +1,5 @@
 -- Variáveis locais
 local player = game.Players.LocalPlayer
-local camera = game.Workspace.CurrentCamera
-local team = player.Team -- Referência à equipe do jogador
-local espActive = false  -- Controle de ativação do ESP
-
--- Criar a interface gráfica (GUI)
 local gui = Instance.new("ScreenGui")
 gui.Name = "XurrascoPanel"
 gui.ResetOnSpawn = false
@@ -20,18 +15,31 @@ frame.BackgroundTransparency = 0.5
 frame.Active = true
 frame.Draggable = true
 frame.Parent = gui
-frame.Visible = true
+frame.Visible = false  -- Inicialmente invisível
 
 -- Título do painel
 local title = Instance.new("TextLabel")
 title.Size = UDim2.new(1, 0, 0, 40)
 title.Position = UDim2.new(0, 0, 0, 0)
 title.BackgroundColor3 = Color3.fromRGB(255, 85, 0)
-title.Text = "🔥 Xurrasco ESP 🔥"
+title.Text = "🔥 Xurrasco Panel 🔥"
 title.TextColor3 = Color3.new(1, 1, 1)
 title.Font = Enum.Font.GothamBold
 title.TextSize = 22
 title.Parent = frame
+
+-- Ícone do Brr Brr Patapim
+local iconButton = Instance.new("ImageButton")
+iconButton.Size = UDim2.new(0, 50, 0, 50)
+iconButton.Position = UDim2.new(0, 10, 0, 10)  -- Posição do ícone no canto superior esquerdo
+iconButton.BackgroundTransparency = 1
+iconButton.Image = "rbxassetid://105182366707019"  -- Coloque o ID do seu asset aqui
+iconButton.Parent = gui
+
+-- Funcionalidade para abrir e minimizar o painel ao clicar no ícone
+iconButton.MouseButton1Click:Connect(function()
+    frame.Visible = not frame.Visible  -- Alterna a visibilidade do painel
+end)
 
 -- Botão para ativar/desativar o ESP
 local espButton = Instance.new("TextButton")
@@ -45,6 +53,7 @@ espButton.TextColor3 = Color3.new(1, 1, 1)
 espButton.Parent = frame
 
 -- Função para ativar/desativar o ESP
+local espActive = false  -- Controle de ativação do ESP
 espButton.MouseButton1Click:Connect(function()
     espActive = not espActive
     if espActive then
@@ -97,4 +106,3 @@ game:GetService("RunService").RenderStepped:Connect(function()
         displayESP()  -- Atualiza o ESP a cada frame
     end
 end)
-
