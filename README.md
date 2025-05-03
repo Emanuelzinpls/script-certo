@@ -147,7 +147,7 @@ local function showPanel()
     -- Fundo do painel com imagem "brr brr patapim"
     local imageBackground = Instance.new("ImageLabel", panel)
     imageBackground.Size = UDim2.new(1, 0, 1, 0)
-    imageBackground.Image = "rbxassetid://SeuAssetID"  -- Substitua com o ID da imagem do "brr brr patapim"
+    imageBackground.Image = "rbxassetid://86404027639991"  -- ID da sua imagem "brr brr patapim"
     imageBackground.BackgroundTransparency = 1
     imageBackground.ScaleType = Enum.ScaleType.Crop
 
