@@ -125,3 +125,14 @@ end)
 -- Função para restaurar o painel ao clicar no ícone
 minimizeIcon.MouseButton1Click:Connect(function()
     frame.Visible = true  -- Exibe o painel novamente
+    minimizeIcon.Visible = false  -- Oculta o ícone após restaurar o painel
+end)
+
+-- Exibir painel novamente ao pressionar F6
+local UserInputService = game:GetService("UserInputService")
+UserInputService.InputBegan:Connect(function(input, processed)
+    if not processed and input.KeyCode == Enum.KeyCode.F6 then
+        frame.Visible = not frame.Visible
+        minimizeIcon.Visible = not minimizeIcon.Visible
+    end
+end)
