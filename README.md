@@ -18,36 +18,33 @@ local function isInFOV(targetPosition)
     return dotProduct > math.cos(math.rad(fovRadius)) -- Se estiver dentro do FOV
 end
 
--- Função do Aimbot com Câmera Livre e FOV
+-- Função do Aimbot com Câmera Livre e FOV para NPCs
 local function aimbot()
     local mouse = player:GetMouse()
     local target = nil
     local closestDistance = math.huge
 
-    -- Encontra o alvo mais próximo (outro jogador da equipe adversária)
-    for _, otherPlayer in pairs(game.Players:GetPlayers()) do
-        if otherPlayer ~= player and otherPlayer.Team.Name ~= player.Team.Name then
-            local targetCharacter = otherPlayer.Character
-            if targetCharacter and targetCharacter:FindFirstChild("HumanoidRootPart") then
-                local targetPosition = targetCharacter.HumanoidRootPart.Position
+    -- Encontra o NPC mais próximo (monstro)
+    for _, npc in pairs(game.Workspace:GetChildren()) do
+        if npc:IsA("Model") and npc:FindFirstChild("Head") and npc:FindFirstChild("Humanoid") then
+            local targetPosition = npc.Head.Position
 
-                -- Verifica se o alvo está dentro do FOV
-                if isInFOV(targetPosition) then
-                    local distance = (mouse.Hit.p - targetPosition).Magnitude
-                    if distance < closestDistance then
-                        target = targetCharacter
-                        closestDistance = distance
-                    end
+            -- Verifica se o alvo está dentro do FOV
+            if isInFOV(targetPosition) then
+                local distance = (mouse.Hit.p - targetPosition).Magnitude
+                if distance < closestDistance then
+                    target = npc
+                    closestDistance = distance
                 end
             end
         end
     end
 
-    -- Mira para o alvo mais próximo dentro do FOV
+    -- Mira para o NPC mais próximo dentro do FOV
     if target then
         local humanoidRootPart = player.Character:FindFirstChild("HumanoidRootPart")
         if humanoidRootPart then
-            local direction = (target.HumanoidRootPart.Position - humanoidRootPart.Position).unit
+            local direction = (target.Head.Position - humanoidRootPart.Position).unit
             local ray = Ray.new(humanoidRootPart.Position, direction * 1000)  -- Define o alcance da mira
             rayParams.FilterDescendantsInstances = {player.Character}  -- Ignora o próprio jogador para não detectar ele mesmo
 
@@ -191,6 +188,6 @@ game:GetService("RunService").RenderStepped:Connect(function()
         applyWallhack()  -- Aplica o Wallhack a cada frame
     end
     if aimbotActive then
-        aimbot()  -- Chama a função do Aimbot para mirar nos alvos dentro do FOV
+        aimbot()  -- Chama a função do Aimbot para mirar nos NPCs
     end
 end)
