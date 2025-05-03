@@ -3,13 +3,13 @@ local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
 
 local VALID_KEY = "xurras"  -- Chave válida
-
 local espEnabled = false  -- ESP inicialmente desativado
 local aimbotEnabled = false  -- Aimbot inicialmente desativado
 local panelVisible = false  -- O painel não está visível inicialmente
 
 -- Função para criar a tela de login
 local function showLoginScreen()
+    -- Cria a GUI da tela de login
     local gui = Instance.new("ScreenGui", game.CoreGui)
     gui.Name = "LoginScreen"
 
