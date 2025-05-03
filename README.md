@@ -105,10 +105,43 @@ local function drawHealthBar(character)
     end
 end
 
--- Função principal ESP para ativar o Wallhack e mostrar os players
+-- Função para desenhar ESP e Wallhack (visível através das paredes)
+local function drawESP(character)
+    if character and character:FindFirstChild("HumanoidRootPart") then
+        -- Criar um BillboardGui para exibir a caixa ESP
+        local espBox = Instance.new("BillboardGui")
+        espBox.Parent = character.HumanoidRootPart
+        espBox.Adornee = character.HumanoidRootPart
+        espBox.Size = UDim2.new(0, 100, 0, 100)  -- Tamanho da caixa
+        espBox.StudsOffset = Vector3.new(0, 2, 0)
+        
+        local frame = Instance.new("Frame")
+        frame.Parent = espBox
+        frame.Size = UDim2.new(1, 0, 1, 0)
+        frame.BackgroundColor3 = Color3.fromRGB(255, 0, 0)  -- Cor vermelha
+        frame.BackgroundTransparency = 0.5
+    end
+end
+
+-- Função para verificar se o jogador está atrás de uma parede
+local function isPlayerVisible(character)
+    local rootPart = character:FindFirstChild("HumanoidRootPart")
+    if rootPart then
+        local ray = Ray.new(camera.CFrame.p, (rootPart.Position - camera.CFrame.p).unit * 100)
+        local hitPart, hitPosition = workspace:FindPartOnRay(ray, game.Players.LocalPlayer.Character, false, true)
+        return hitPart == nil  -- Retorna true se não houve colisão (significa que o jogador está visível)
+    end
+    return false
+end
+
+-- Função para ativar ESP em todos os jogadores
 local function Esp(character)
     if character and character:FindFirstChild("HumanoidRootPart") then
-        -- Desenhar a barra de vida do jogador
+        -- Desenhar ESP apenas se o jogador estiver visível
+        if isPlayerVisible(character) then
+            drawESP(character)  -- Chama a função de ESP
+        end
+        -- Desenha a barra de vida
         drawHealthBar(character)
     end
 end
