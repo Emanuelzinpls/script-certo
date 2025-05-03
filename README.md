@@ -61,7 +61,7 @@ end
 -- Criando o ícone flutuante de minimização
 local minimizeIcon = Instance.new("ImageButton")
 minimizeIcon.Size = UDim2.new(0, 50, 0, 50)
-minimizeIcon.Position = UDim2.new(0.5, -25, 0.5, -25)
+minimizeIcon.Position = UDim2.new(0.5, -25, 0.5, -100)  -- Posiciona o ícone no meio
 minimizeIcon.BackgroundTransparency = 1
 minimizeIcon.Image = "rbxassetid://86404027639991"  -- Ícone "brr brr patapim"
 minimizeIcon.Visible = true
@@ -70,7 +70,7 @@ minimizeIcon.Parent = gui
 -- Minimizar painel para o ícone
 minimizeIcon.MouseButton1Click:Connect(function()
     frame.Visible = false
-    minimizeIcon.Visible = false
+    minimizeIcon.Visible = true
 end)
 
 -- Função de ESP para mostrar jogadores próximos
@@ -124,7 +124,7 @@ end)
 -- Mostrar o painel ao clicar no ícone
 minimizeIcon.MouseButton1Click:Connect(function()
     frame.Visible = true
-    minimizeIcon.Visible = false
+    minimizeIcon.Visible = false  -- Ocultar o ícone quando o painel for restaurado
 end)
 
 -- Exibir painel novamente ao pressionar F6
