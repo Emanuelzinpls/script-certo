@@ -1,13 +1,15 @@
 -- Variáveis locais
 local player = game.Players.LocalPlayer
 local camera = game.Workspace.CurrentCamera
+
+-- Criar o painel flutuante
 local gui = Instance.new("ScreenGui")
 gui.Name = "XurrascoPanel"
 gui.ResetOnSpawn = false
 gui.IgnoreGuiInset = true
 gui.Parent = player:WaitForChild("PlayerGui")
 
--- Criar o painel de controle
+-- Criar a interface do painel
 local frame = Instance.new("Frame")
 frame.Size = UDim2.new(0, 400, 0, 250)
 frame.Position = UDim2.new(0.5, -200, 0.5, -125)
@@ -42,73 +44,109 @@ iconButton.MouseButton1Click:Connect(function()
     frame.Visible = not frame.Visible  -- Alterna a visibilidade do painel
 end)
 
--- Botão para ativar/desativar o ESP
-local espButton = Instance.new("TextButton")
-espButton.Size = UDim2.new(0, 150, 0, 40)
-espButton.Position = UDim2.new(0.5, -75, 0, 60)
-espButton.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
-espButton.Text = "Ativar ESP"
-espButton.Font = Enum.Font.GothamBold
-espButton.TextSize = 18
-espButton.TextColor3 = Color3.new(1, 1, 1)
-espButton.Parent = frame
+-- Botão para ativar/desativar o Wallhack
+local wallhackButton = Instance.new("TextButton")
+wallhackButton.Size = UDim2.new(0, 150, 0, 40)
+wallhackButton.Position = UDim2.new(0.5, -75, 0, 60)
+wallhackButton.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
+wallhackButton.Text = "Ativar Wallhack"
+wallhackButton.Font = Enum.Font.GothamBold
+wallhackButton.TextSize = 18
+wallhackButton.TextColor3 = Color3.new(1, 1, 1)
+wallhackButton.Parent = frame
 
--- Função para ativar/desativar o ESP
-local espActive = false  -- Controle de ativação do ESP
-espButton.MouseButton1Click:Connect(function()
-    espActive = not espActive
-    if espActive then
-        espButton.Text = "Desativar ESP"
-        print("ESP Ativado")
+-- Função para ativar/desativar o Wallhack
+local wallhackActive = false  -- Controle de ativação do Wallhack
+wallhackButton.MouseButton1Click:Connect(function()
+    wallhackActive = not wallhackActive
+    if wallhackActive then
+        wallhackButton.Text = "Desativar Wallhack"
+        print("Wallhack Ativado")
     else
-        espButton.Text = "Ativar ESP"
-        print("ESP Desativado")
+        wallhackButton.Text = "Ativar Wallhack"
+        print("Wallhack Desativado")
     end
 end)
 
--- Função para desenhar ESP (caixa ao redor dos jogadores)
-local function drawESP(character)
-    if character and character:FindFirstChild("HumanoidRootPart") then
-        -- Criar o BillboardGui para o ESP
-        local espBox = Instance.new("BillboardGui")
-        espBox.Parent = character.HumanoidRootPart
-        espBox.Adornee = character.HumanoidRootPart
-        espBox.Size = UDim2.new(0, 50, 0, 50)  -- Diminuir o tamanho da caixa
-        espBox.StudsOffset = Vector3.new(0, 2, 0)
-
-        local frame = Instance.new("Frame")
-        frame.Parent = espBox
-        frame.Size = UDim2.new(1, 0, 1, 0)
-        frame.BackgroundColor3 = Color3.fromRGB(255, 0, 0)  -- Cor vermelha
-        frame.BackgroundTransparency = 0.5
-    end
-end
-
--- Função para tornar os jogadores visíveis através das paredes (Wallhack)
+-- Função para tornar os jogadores visíveis atrás das paredes e deixá-los vermelhos
 local function wallhack(character)
     if character then
         local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
-        if humanoidRootPart then
+        local humanoid = character:FindFirstChild("Humanoid")
+        
+        if humanoidRootPart and humanoid then
             -- Tornar o personagem semi-transparente para "wallhack"
             humanoidRootPart.LocalTransparencyModifier = 0.5  -- Torna o jogador semi-transparente
+            
+            -- Mudar a cor do personagem para vermelho
+            for _, part in pairs(character:GetChildren()) do
+                if part:IsA("MeshPart") or part:IsA("Part") then
+                    part.BrickColor = BrickColor.new("Bright red")  -- Torna a parte do corpo vermelha
+                    part.LocalTransparencyModifier = 0.5  -- Aplica transparência
+                end
+            end
         end
     end
 end
 
--- Função principal para ativar o ESP em jogadores
-local function displayESP()
+-- Função para aplicar o Wallhack em todos os jogadores
+local function applyWallhack()
     for _, otherPlayer in pairs(game.Players:GetPlayers()) do
         if otherPlayer.Character and otherPlayer ~= player then
-            -- Chama a função para desenhar o ESP e tornar o jogador visível atrás das paredes
-            drawESP(otherPlayer.Character)
+            -- Chama a função para tornar o jogador visível atrás das paredes e vermelho
             wallhack(otherPlayer.Character)
         end
     end
 end
 
--- Função para ativar o ESP enquanto o jogador estiver na partida
+-- Função para criar a barra de vida dos jogadores
+local function createHealthBar(character)
+    if character and character:FindFirstChild("Humanoid") then
+        local humanoid = character:FindFirstChild("Humanoid")
+        
+        -- Criar a barra de vida
+        local healthBar = Instance.new("BillboardGui")
+        healthBar.Adornee = character.HumanoidRootPart
+        healthBar.Size = UDim2.new(0, 100, 0, 10)
+        healthBar.StudsOffset = Vector3.new(0, 2, 0)
+        healthBar.Parent = character.HumanoidRootPart
+        
+        local bar = Instance.new("Frame")
+        bar.Size = UDim2.new(1, 0, 1, 0)
+        bar.BackgroundColor3 = Color3.fromRGB(0, 255, 0)  -- Cor inicial da barra de vida
+        bar.Parent = healthBar
+
+        -- Atualizar a barra de vida com o valor atual de saúde
+        humanoid.HealthChanged:Connect(function()
+            local healthPercentage = humanoid.Health / humanoid.MaxHealth
+            bar.Size = UDim2.new(healthPercentage, 0, 1, 0)
+
+            -- Se a saúde for baixa, a barra ficará vermelha
+            if humanoid.Health / humanoid.MaxHealth < 0.3 then
+                bar.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+            else
+                bar.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
+            end
+        end)
+    end
+end
+
+-- Função para aplicar Wallhack e criar a barra de vida
+local function applyWallhackAndHealthBar()
+    for _, otherPlayer in pairs(game.Players:GetPlayers()) do
+        if otherPlayer.Character and otherPlayer ~= player then
+            -- Aplica o Wallhack
+            wallhack(otherPlayer.Character)
+            
+            -- Cria a barra de vida
+            createHealthBar(otherPlayer.Character)
+        end
+    end
+end
+
+-- Função para ativar o Wallhack enquanto o jogador estiver na partida
 game:GetService("RunService").RenderStepped:Connect(function()
-    if espActive then
-        displayESP()  -- Atualiza o ESP a cada frame
+    if wallhackActive then
+        applyWallhackAndHealthBar()  -- Aplica o wallhack e a barra de vida a cada frame
     end
 end)
