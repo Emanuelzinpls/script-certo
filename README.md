@@ -53,26 +53,6 @@ espButton.MouseButton1Click:Connect(function()
     end
 end)
 
--- Botão de Fechar o Script
-local closeButton = Instance.new("TextButton")
-closeButton.Size = UDim2.new(0, 150, 0, 40)
-closeButton.Position = UDim2.new(0.5, -75, 0, 120)
-closeButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
-closeButton.Text = "Fechar Script"
-closeButton.Font = Enum.Font.GothamBold
-closeButton.TextSize = 18
-closeButton.TextColor3 = Color3.new(1, 1, 1)
-closeButton.Parent = frame
-
--- Função para fechar o script
-closeButton.MouseButton1Click:Connect(function()
-    -- Desabilitar o painel e todas as funções
-    frame.Visible = false
-    espActive = false  -- Desativar o ESP
-    espButton.Text = "Ativar ESP"
-    print("Script Desativado")
-end)
-
 -- Criando o ícone flutuante de minimização
 local minimizeIcon = Instance.new("ImageButton")
 minimizeIcon.Size = UDim2.new(0, 50, 0, 50)
@@ -94,8 +74,8 @@ end
 -- Conecta o clique no ícone ao evento de alternar o painel
 minimizeIcon.MouseButton1Click:Connect(togglePanel)
 
--- Função para desenhar linha e mostrar a distância
-local function drawLineToPlayer(character)
+-- Função para desenhar uma linha fixa entre o jogador e o outro jogador
+local function drawFixedLineToPlayer(character)
     if character and character:FindFirstChild("HumanoidRootPart") then
         -- Criar uma linha entre o jogador e o outro jogador
         local rootPart = character.HumanoidRootPart
@@ -103,11 +83,11 @@ local function drawLineToPlayer(character)
         
         -- Criando o part que será a linha
         local line = Instance.new("Part")
-        line.Size = Vector3.new(0.1, 0.1, distance)
+        line.Size = Vector3.new(0.1, 0.1, distance)  -- A espessura da linha é 0.1
         line.CFrame = CFrame.new(player.Character.HumanoidRootPart.Position, rootPart.Position) * CFrame.new(0, 0, -distance / 2)
         line.Anchored = true
         line.CanCollide = false
-        line.Color = Color3.fromRGB(255, 0, 0)
+        line.Color = Color3.fromRGB(255, 0, 0)  -- Linha vermelha
         line.Parent = game.Workspace
         
         -- Exibindo a distância na tela
@@ -131,8 +111,8 @@ end
 -- Função principal ESP para ativar o Wallhack e mostrar os players
 local function Esp(character)
     if character and character:FindFirstChild("HumanoidRootPart") then
-        -- Desenhar linha e calcular distância
-        drawLineToPlayer(character)
+        -- Desenhar linha fixa entre o jogador local e o outro jogador
+        drawFixedLineToPlayer(character)
     end
 end
 
