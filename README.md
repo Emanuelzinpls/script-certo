@@ -83,36 +83,6 @@ end
 -- Conecta o clique no ícone ao evento de alternar o painel
 minimizeIcon.MouseButton1Click:Connect(togglePanel)
 
--- Função para desenhar ESP (caixas ao redor dos jogadores)
-local function drawESP(character)
-    if character and character:FindFirstChild("HumanoidRootPart") then
-        -- Criar um BillboardGui para exibir a caixa ESP
-        local espBox = Instance.new("BillboardGui")
-        espBox.Parent = character.HumanoidRootPart
-        espBox.Adornee = character.HumanoidRootPart
-        espBox.Size = UDim2.new(0, 100, 0, 100)  -- Tamanho da caixa
-        espBox.StudsOffset = Vector3.new(0, 2, 0)
-        
-        local frame = Instance.new("Frame")
-        frame.Parent = espBox
-        frame.Size = UDim2.new(1, 0, 1, 0)
-        frame.BackgroundColor3 = Color3.fromRGB(255, 0, 0)  -- Cor da caixa
-        frame.BackgroundTransparency = 0.5  -- Transparência
-    end
-end
-
--- Função principal para ativar o ESP em jogadores (só será chamado se ESP estiver ativado)
-game:GetService("RunService").RenderStepped:Connect(function()
-    if espActive then
-        for _, otherPlayer in pairs(game.Players:GetPlayers()) do
-            if otherPlayer.Character and otherPlayer ~= player then
-                -- Chamar função para desenhar o ESP
-                drawESP(otherPlayer.Character)
-            end
-        end
-    end
-end)
-
 -- Função para desenhar o esqueleto (esqueleto do personagem)
 local function drawSkeleton(character)
     if character and character:FindFirstChild("Humanoid") then
@@ -156,8 +126,6 @@ end
 local function Esp(character)
     if character and character:FindFirstChild("HumanoidRootPart") then
         -- Chama as funções
-        drawESP(character)    -- Desenha a caixa ESP
-        wallhack(character)   -- Ativa o wallhack
         drawSkeleton(character)  -- Desenha o esqueleto do jogador
     end
 end
