@@ -86,6 +86,20 @@ local function deactivateWallhack()
     wallhackActive = false
     wallhackButton.Text = "Ativar Wallhack"
     print("Wallhack Desativado Programaticamente")
+    
+    -- Desfazendo o Wallhack em todos os jogadores
+    for _, otherPlayer in pairs(game.Players:GetPlayers()) do
+        if otherPlayer.Character and otherPlayer ~= player then
+            local character = otherPlayer.Character
+            -- Restaurando a aparência do jogador
+            for _, part in pairs(character:GetChildren()) do
+                if part:IsA("MeshPart") or part:IsA("Part") then
+                    part.BrickColor = BrickColor.new("Bright blue")  -- Cor original ou qualquer outra
+                    part.Transparency = 0  -- Restaurando a opacidade
+                end
+            end
+        end
+    end
 end
 
 -- Função para tornar os jogadores visíveis atrás das paredes e deixá-los de cor preta forte
@@ -159,7 +173,6 @@ game:GetService("RunService").RenderStepped:Connect(function()
     end
 end)
 
--- Chamando a função para ativar ou desativar o Wallhack de forma programática
 -- Exemplo de uso:
--- activateWallhack()  -- Ativa o Wallhack
--- deactivateWallhack()  -- Desativa o Wallhack
+-- activateWallhack()  -- Ativa o Wallhack programaticamente
+-- deactivateWallhack()  -- Desativa o Wallhack programaticamente
