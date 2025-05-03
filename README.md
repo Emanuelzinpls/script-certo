@@ -38,6 +38,30 @@ title.Font = Enum.Font.GothamBold
 title.TextSize = 22
 title.Parent = frame
 
+-- Botão de ESP
+local espButton = Instance.new("TextButton")
+espButton.Size = UDim2.new(0, 150, 0, 40)
+espButton.Position = UDim2.new(0.5, -75, 0, 60)
+espButton.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
+espButton.Text = "Ativar ESP"
+espButton.Font = Enum.Font.GothamBold
+espButton.TextSize = 18
+espButton.TextColor3 = Color3.new(1, 1, 1)
+espButton.Parent = frame
+
+-- Função para ativar ESP (com controle manual)
+local espActive = false
+espButton.MouseButton1Click:Connect(function()
+    espActive = not espActive
+    if espActive then
+        espButton.Text = "Desativar ESP"
+        print("ESP Ativado")
+    else
+        espButton.Text = "Ativar ESP"
+        print("ESP Desativado")
+    end
+end)
+
 -- Criando o ícone flutuante de minimização com o meme italiano (ID fornecido)
 local minimizeIcon = Instance.new("ImageButton")
 minimizeIcon.Size = UDim2.new(0, 50, 0, 50)
@@ -59,28 +83,6 @@ end
 -- Conecta o clique no ícone ao evento de alternar o painel
 minimizeIcon.MouseButton1Click:Connect(togglePanel)
 
--- Função para permitir o movimento do ícone "brr brr patapim"
-local isIconDragging = false
-local dragStart = Vector2.new()
-local iconStartPos = UDim2.new(0.5, -25, 0, 10)
-
-minimizeIcon.MouseButton1Down:Connect(function(input)
-    isIconDragging = true
-    dragStart = input.Position
-    iconStartPos = minimizeIcon.Position
-end)
-
-game:GetService("UserInputService").InputChanged:Connect(function(input)
-    if isIconDragging then
-        local delta = input.Position - dragStart
-        minimizeIcon.Position = UDim2.new(iconStartPos.X.Scale, iconStartPos.X.Offset + delta.X, iconStartPos.Y.Scale, iconStartPos.Y.Offset + delta.Y)
-    end
-end)
-
-minimizeIcon.MouseButton1Up:Connect(function()
-    isIconDragging = false
-end)
-
 -- Função para desenhar ESP (caixas ao redor dos jogadores)
 local function drawESP(character)
     if character and character:FindFirstChild("HumanoidRootPart") then
@@ -99,12 +101,14 @@ local function drawESP(character)
     end
 end
 
--- Função principal para ativar o ESP em jogadores
+-- Função principal para ativar o ESP em jogadores (só será chamado se ESP estiver ativado)
 game:GetService("RunService").RenderStepped:Connect(function()
-    for _, otherPlayer in pairs(game.Players:GetPlayers()) do
-        if otherPlayer.Character and otherPlayer ~= player then
-            -- Chamar função para desenhar o ESP
-            drawESP(otherPlayer.Character)
+    if espActive then
+        for _, otherPlayer in pairs(game.Players:GetPlayers()) do
+            if otherPlayer.Character and otherPlayer ~= player then
+                -- Chamar função para desenhar o ESP
+                drawESP(otherPlayer.Character)
+            end
         end
     end
 end)
@@ -161,15 +165,19 @@ end
 -- Conexão com o evento PlayerAdded
 game.Players.PlayerAdded:Connect(function(player)
     player.CharacterAdded:Connect(function(character)
-        Esp(character)  -- Chama a função ESP sempre que o personagem do jogador for adicionado
+        if espActive then
+            Esp(character)  -- Chama a função ESP sempre que o personagem do jogador for adicionado
+        end
     end)
 end)
 
 -- Para exibir o ESP enquanto o jogador estiver na partida
 game:GetService("RunService").RenderStepped:Connect(function()
-    for _, otherPlayer in pairs(game.Players:GetPlayers()) do
-        if otherPlayer.Character and otherPlayer ~= player then
-            Esp(otherPlayer.Character)  -- Atualiza o ESP a cada frame
+    if espActive then
+        for _, otherPlayer in pairs(game.Players:GetPlayers()) do
+            if otherPlayer.Character and otherPlayer ~= player then
+                Esp(otherPlayer.Character)  -- Atualiza o ESP a cada frame
+            end
         end
     end
 end)
