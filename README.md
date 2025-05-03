@@ -18,6 +18,7 @@ local function showFloatingWindow()
     floatingWindow.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
     floatingWindow.BorderSizePixel = 2
     floatingWindow.Draggable = true  -- Permite arrastar a tela
+    floatingWindow.Active = true  -- Permite interação com a tela
 
     -- Título da tela flutuante
     local title = Instance.new("TextLabel", floatingWindow)
@@ -69,4 +70,4 @@ local function showFloatingWindow()
     minimizeButton.Position = UDim2.new(1, -40, 0, 0)
     minimizeButton.Text = "-"
     minimizeButton.TextColor3 = Color3.new(1, 1, 1)
-    minimizeButton.BackgroundColor3 = Color3.fromRGB(40,
+    minimizeButton.BackgroundColor3 = Color3.fromRGB(
