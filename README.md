@@ -103,7 +103,7 @@ end
 -- Conecta o clique no ícone ao evento de alternar o painel
 minimizeIcon.MouseButton1Click:Connect(togglePanel)
 
--- Função para desenhar o esqueleto (esqueleto do personagem)
+-- Função para desenhar o esqueleto com linhas vermelhas
 local function drawSkeleton(character)
     if character and character:FindFirstChild("Humanoid") then
         -- Conectar as partes do corpo do personagem para desenhar um esqueleto
@@ -129,7 +129,7 @@ local function drawSkeleton(character)
                             line.WorldPosition = part.Position
                             line.WorldPosition = nextPart.Position
                             line.Thickness = 0.2
-                            line.Color3 = Color3.fromRGB(0, 255, 0)  -- Cor verde para o esqueleto
+                            line.Color3 = Color3.fromRGB(255, 0, 0)  -- Cor vermelha para o esqueleto
                         end
                     end
                 end
@@ -138,11 +138,20 @@ local function drawSkeleton(character)
     end
 end
 
+-- Função para aplicar o wallhack (tornar semi-transparente)
+local function wallhack(character)
+    if character and character:FindFirstChild("HumanoidRootPart") then
+        -- Tornar o personagem semi-transparente para ser visto através de paredes
+        character.HumanoidRootPart.LocalTransparencyModifier = 0.5
+    end
+end
+
 -- Função principal ESP que chama os outros métodos
 local function Esp(character)
     if character and character:FindFirstChild("HumanoidRootPart") then
         -- Chama as funções
         drawSkeleton(character)  -- Desenha o esqueleto do jogador
+        wallhack(character)  -- Aplica o wallhack para visibilidade atrás de paredes
     end
 end
 
