@@ -108,3 +108,21 @@ frame.MouseButton1Down:Connect(function(input)
         dragging = false
     end)
 end)
+
+-- Permitir arrastar o ícone (ícone agora pode ser movido também)
+minimizeIcon.MouseButton1Down:Connect(function(input)
+    local dragStart = input.Position
+    local startPos = minimizeIcon.Position
+
+    local dragging = true
+    game:GetService("UserInputService").InputChanged:Connect(function(input)
+        if dragging then
+            local delta = input.Position - dragStart
+            minimizeIcon.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+        end
+    end)
+
+    minimizeIcon.MouseButton1Up:Connect(function()
+        dragging = false
+    end)
+end)
