@@ -74,6 +74,27 @@ end
 -- Conecta o clique no ícone ao evento de alternar o painel
 minimizeIcon.MouseButton1Click:Connect(togglePanel)
 
+-- Função para desenhar ESP (ajustado ao corpo do jogador)
+local function drawESP(character)
+    if character and character:FindFirstChild("HumanoidRootPart") then
+        local humanoidRootPart = character.HumanoidRootPart
+        local humanoid = character:FindFirstChild("Humanoid")
+        
+        -- Criar o BillboardGui para o ESP ajustado ao corpo
+        local espBox = Instance.new("BillboardGui")
+        espBox.Parent = humanoidRootPart
+        espBox.Adornee = humanoidRootPart
+        espBox.Size = UDim2.new(0, humanoidRootPart.Size.X, 0, humanoidRootPart.Size.Y)
+        espBox.StudsOffset = Vector3.new(0, 2, 0)
+
+        local frame = Instance.new("Frame")
+        frame.Parent = espBox
+        frame.Size = UDim2.new(1, 0, 1, 0)
+        frame.BackgroundColor3 = Color3.fromRGB(255, 0, 0)  -- Cor vermelha
+        frame.BackgroundTransparency = 0.5
+    end
+end
+
 -- Função para desenhar a barra de vida do jogador
 local function drawHealthBar(character)
     if character and character:FindFirstChild("Humanoid") then
@@ -105,24 +126,6 @@ local function drawHealthBar(character)
     end
 end
 
--- Função para desenhar ESP e Wallhack (visível através das paredes)
-local function drawESP(character)
-    if character and character:FindFirstChild("HumanoidRootPart") then
-        -- Criar um BillboardGui para exibir a caixa ESP
-        local espBox = Instance.new("BillboardGui")
-        espBox.Parent = character.HumanoidRootPart
-        espBox.Adornee = character.HumanoidRootPart
-        espBox.Size = UDim2.new(0, 100, 0, 100)  -- Tamanho da caixa
-        espBox.StudsOffset = Vector3.new(0, 2, 0)
-        
-        local frame = Instance.new("Frame")
-        frame.Parent = espBox
-        frame.Size = UDim2.new(1, 0, 1, 0)
-        frame.BackgroundColor3 = Color3.fromRGB(255, 0, 0)  -- Cor vermelha
-        frame.BackgroundTransparency = 0.5
-    end
-end
-
 -- Função para verificar se o jogador está atrás de uma parede
 local function isPlayerVisible(character)
     local rootPart = character:FindFirstChild("HumanoidRootPart")
@@ -134,7 +137,7 @@ local function isPlayerVisible(character)
     return false
 end
 
--- Função para ativar ESP em todos os jogadores
+-- Função para desenhar ESP e Wallhack (visível através das paredes)
 local function Esp(character)
     if character and character:FindFirstChild("HumanoidRootPart") then
         -- Desenhar ESP apenas se o jogador estiver visível
