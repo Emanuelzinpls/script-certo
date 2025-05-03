@@ -2,6 +2,7 @@
 local player = game.Players.LocalPlayer
 local camera = game.Workspace.CurrentCamera
 local rayParams = RaycastParams.new()  -- Parâmetros do Raycast
+local tool = nil  -- Ferramenta atual equipada pelo jogador
 
 -- Parâmetros do Aimbot
 local fovRadius = 50 -- Definindo o raio do FOV (quanto maior, maior a área em que o aimbot procurará alvos)
@@ -18,19 +19,18 @@ local function isInFOV(targetPosition)
     return dotProduct > math.cos(math.rad(fovRadius)) -- Se estiver dentro do FOV
 end
 
--- Função para criar o círculo do FOV na tela
-local function createFOVCircle()
-    local fovCircle = Instance.new("Frame")
-    fovCircle.Size = UDim2.new(0, fovRadius * 2, 0, fovRadius * 2)  -- O tamanho do círculo é o dobro do raio
-    fovCircle.Position = UDim2.new(0.5, -fovRadius, 0.5, -fovRadius)  -- Centraliza o círculo na tela
-    fovCircle.AnchorPoint = Vector2.new(0.5, 0.5)  -- Centraliza o ponto de ancoragem
-    fovCircle.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-    fovCircle.BackgroundTransparency = 0.5  -- Define uma transparência para o círculo
-    fovCircle.BorderSizePixel = 2
-    fovCircle.BorderColor3 = Color3.fromRGB(255, 0, 0)  -- Cor da borda do círculo
-    fovCircle.Parent = player.PlayerGui:WaitForChild("ScreenGui")
-
-    return fovCircle
+-- Função para disparar a arma equipada
+local function fireWeapon(target)
+    -- Verificar qual ferramenta (arma) está equipada
+    tool = player.Backpack:FindFirstChildOfClass("Tool")  -- Encontra a primeira ferramenta no inventário do jogador
+    if tool then
+        -- Assumindo que a ferramenta tem um método de disparo (adicione lógica dependendo da sua arma)
+        local fireEvent = tool:FindFirstChild("FireEvent")  -- Substitua "FireEvent" pela função específica de disparo
+        if fireEvent then
+            fireEvent:FireServer(target)  -- Dispara a arma no alvo
+            print(player.Name .. " disparou a arma no NPC " .. target.Name)
+        end
+    end
 end
 
 -- Função do Aimbot para NPCs
@@ -67,9 +67,8 @@ local function npcAimbot()
 
             -- Verifica se o raycast atingiu o NPC
             if hitPart and hitPart.Parent == target then
-                -- Aqui você pode simular o disparo ou a ação de atirar
-                print(player.Name .. " está mirando no NPC: " .. target.Name)
-                -- Exemplo de disparo (adicione a lógica de disparo do jogo aqui)
+                -- Aqui você pode disparar a arma no NPC
+                fireWeapon(target)  -- Simula o disparo da arma
             end
         end
     end
@@ -140,13 +139,30 @@ npcAimbotButton.MouseButton1Click:Connect(function()
     end
 end)
 
--- Criação do FOV
-createFOVCircle()
+-- Criação do FOV visível (círculo na tela)
+local fovCircle = Instance.new("Frame")
+fovCircle.Size = UDim2.new(0, fovRadius * 2, 0, fovRadius * 2)  -- Define o tamanho do círculo baseado no raio do FOV
+fovCircle.Position = UDim2.new(0.5, -fovRadius, 0.5, -fovRadius)  -- Centraliza o círculo na tela
+fovCircle.AnchorPoint = Vector2.new(0.5, 0.5)  -- Centraliza o círculo
+fovCircle.BackgroundColor3 = Color3.fromRGB(255, 0, 0)  -- Cor do círculo (vermelho)
+fovCircle.BackgroundTransparency = 0.5  -- Tornar o círculo semi-transparente
+fovCircle.Parent = gui
+fovCircle.Visible = false  -- Inicialmente invisível
 
--- A cada 0.1 segundos, verifica o aimbot para NPCs
+-- Função para exibir o FOV na tela
+local function showFOV()
+    if npcAimbotActive then
+        fovCircle.Visible = true  -- Torna o círculo visível quando o aimbot está ativado
+    else
+        fovCircle.Visible = false  -- Oculta o círculo quando o aimbot está desativado
+    end
+end
+
+-- A cada 0.1 segundos, verifica o aimbot para NPCs e o FOV
 while true do
     if npcAimbotActive then
         npcAimbot()  -- Chama a função do aimbot para NPCs
     end
+    showFOV()  -- Verifica a visibilidade do FOV
     wait(0.1)
 end
