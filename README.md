@@ -18,7 +18,7 @@ frame.BackgroundTransparency = 0.5
 frame.Active = true
 frame.Draggable = true
 frame.Parent = gui
-frame.Visible = true  -- Garantir que o painel comece visível
+frame.Visible = true  -- Inicialmente, o painel está visível
 
 -- Imagem de fundo do painel
 local bg = Instance.new("ImageLabel")
@@ -68,17 +68,19 @@ minimizeIcon.Image = "rbxassetid://105182366707019"  -- Ícone do meme "brr brr 
 minimizeIcon.Visible = true
 minimizeIcon.Parent = gui
 
--- Função para minimizar o painel
+-- Função para minimizar o painel e esconder o ícone
 minimizeIcon.MouseButton1Click:Connect(function()
     frame.Visible = false  -- Oculta o painel
     minimizeIcon.Visible = true  -- Exibe o ícone para restaurar
 end)
 
 -- Função para restaurar o painel ao clicar no ícone
-minimizeIcon.MouseButton1Click:Connect(function()
+local function restorePanel()
     frame.Visible = true  -- Exibe o painel novamente
     minimizeIcon.Visible = false  -- Oculta o ícone após restaurar o painel
-end)
+end
+
+minimizeIcon.MouseButton1Click:Connect(restorePanel)
 
 -- Função para permitir arrastar o ícone
 local isDragging = false
@@ -117,7 +119,11 @@ end)
 local UserInputService = game:GetService("UserInputService")
 UserInputService.InputBegan:Connect(function(input, processed)
     if not processed and input.KeyCode == Enum.KeyCode.F6 then
-        frame.Visible = not frame.Visible
-        minimizeIcon.Visible = not minimizeIcon.Visible
+        if frame.Visible then
+            frame.Visible = false
+            minimizeIcon.Visible = true
+        else
+            restorePanel()
+        end
     end
 end)
