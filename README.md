@@ -67,10 +67,11 @@ minimizeIcon.Image = "rbxassetid://86404027639991"  -- Ícone "brr brr patapim"
 minimizeIcon.Visible = true
 minimizeIcon.Parent = gui
 
--- Minimizar painel para o ícone
+-- Função para minimizar o painel
 minimizeIcon.MouseButton1Click:Connect(function()
-    frame.Visible = false
-    minimizeIcon.Visible = true
+    frame.Visible = false  -- Oculta o painel
+    minimizeIcon.Position = UDim2.new(0.5, -25, 0.5, -100)  -- Define a posição do ícone
+    minimizeIcon.Visible = true  -- Exibe o ícone para restaurar
 end)
 
 -- Função de ESP para mostrar jogadores próximos
@@ -121,17 +122,6 @@ createButton("🎯 Simular Aimbot", 150, function()
     end
 end)
 
--- Mostrar o painel ao clicar no ícone
+-- Função para restaurar o painel ao clicar no ícone
 minimizeIcon.MouseButton1Click:Connect(function()
-    frame.Visible = true
-    minimizeIcon.Visible = false  -- Ocultar o ícone quando o painel for restaurado
-end)
-
--- Exibir painel novamente ao pressionar F6
-local UserInputService = game:GetService("UserInputService")
-UserInputService.InputBegan:Connect(function(input, processed)
-    if not processed and input.KeyCode == Enum.KeyCode.F6 then
-        frame.Visible = not frame.Visible
-        minimizeIcon.Visible = not minimizeIcon.Visible
-    end
-end)
+    frame.Visible = true  -- Exibe o painel novamente
