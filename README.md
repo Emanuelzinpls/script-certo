@@ -1,13 +1,12 @@
 local Players = game:GetService("Players")
-local LocalPlayer = Players.LocalPlayer
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
 
-local VALID_KEY = "xurras"  -- A chave de validação
+local VALID_KEY = "xurras"  -- Chave válida
 
-local espEnabled = false  -- Inicialmente, o ESP está desativado
-local aimbotEnabled = false  -- Inicialmente, o Aimbot está desativado
-local panelVisible = false  -- Inicialmente, o painel está oculto
+local espEnabled = false  -- ESP inicialmente desativado
+local aimbotEnabled = false  -- Aimbot inicialmente desativado
+local panelVisible = false  -- O painel não está visível inicialmente
 
 -- Função para criar a tela de login
 local function showLoginScreen()
@@ -20,7 +19,7 @@ local function showLoginScreen()
     background.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
     background.BackgroundTransparency = 0.5
 
-    -- Caixa de título da tela de login
+    -- Caixa de título
     local title = Instance.new("TextLabel", background)
     title.Size = UDim2.new(1, 0, 0, 50)
     title.Text = "Tela de Login"
@@ -30,7 +29,7 @@ local function showLoginScreen()
     title.TextSize = 24
     title.TextXAlignment = Enum.TextXAlignment.Center
 
-    -- Caixa para digitar a chave
+    -- Caixa de input para chave
     local inputBox = Instance.new("TextBox", background)
     inputBox.Size = UDim2.new(0, 250, 0, 30)
     inputBox.Position = UDim2.new(0.5, -125, 0.4, 0)
@@ -61,96 +60,37 @@ local function showLoginScreen()
     statusLabel.TextSize = 16
     statusLabel.TextXAlignment = Enum.TextXAlignment.Center
 
-    -- Função de validação da chave e transição para o painel
+    -- Função de login
     loginButton.MouseButton1Click:Connect(function()
         local keyInput = inputBox.Text
         if keyInput == VALID_KEY then
             statusLabel.Text = "Chave correta! Carregando painel..."
             wait(1)
             gui:Destroy()  -- Remove a tela de login
-            showPanel()  -- Exibe o painel com as funcionalidades
+            showPanel()  -- Exibe o painel
         else
             statusLabel.Text = "Chave incorreta! Tente novamente."
         end
     end)
 end
 
--- Função de ESP (Visualizar jogadores)
-function createESP(player)
-    if player == LocalPlayer then return end
-
-    -- Criando uma caixa de ESP simples
-    local box = Drawing.new("Square")
-    box.Color = Color3.new(1, 0, 0)  -- Cor da caixa (vermelho)
-    box.Thickness = 1
-    box.Transparency = 1
-    box.Visible = espEnabled
-
-    -- Atualizando a posição da caixa com base no jogador
-    RunService.RenderStepped:Connect(function()
-        if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
-            local pos, onScreen = workspace.CurrentCamera:WorldToViewportPoint(player.Character.HumanoidRootPart.Position)
-            if onScreen then
-                box.Size = Vector2.new(50, 100)  -- Tamanho da caixa
-                box.Position = Vector2.new(pos.X - 25, pos.Y - 50)  -- Centralizando a caixa em torno do jogador
-                box.Visible = espEnabled
-            else
-                box.Visible = false
-            end
-        else
-            box.Visible = false
-        end
-    end)
-end
-
--- Função para ativar/desativar o Aimbot
-RunService.RenderStepped:Connect(function()
-    if aimbotEnabled then
-        local closestPlayer = nil
-        local shortestDistance = 200
-
-        for _, player in pairs(Players:GetPlayers()) do
-            if player ~= LocalPlayer and player.Character and player.Character:FindFirstChild("Head") then
-                local pos, visible = workspace.CurrentCamera:WorldToViewportPoint(player.Character.Head.Position)
-                if visible then
-                    local distance = (UserInputService:GetMouseLocation() - Vector2.new(pos.X, pos.Y)).Magnitude
-                    if distance < shortestDistance then
-                        shortestDistance = distance
-                        closestPlayer = player
-                    end
-                end
-            end
-        end
-
-        if closestPlayer then
-            workspace.CurrentCamera.CFrame = CFrame.new(workspace.CurrentCamera.CFrame.Position, closestPlayer.Character.Head.Position)
-        end
-    end
-end)
-
--- Função para criar o painel com ESP e Aimbot
+-- Função para criar o painel
 local function showPanel()
-    -- Garantindo que o painel só será criado uma vez
     if panelVisible then return end
     panelVisible = true
 
     local gui = Instance.new("ScreenGui", game.CoreGui)
-    gui.Name = "XurrascoPanelUI"
+    gui.Name = "XurrascoPanel"
 
+    -- Criando o painel flutuante
     local panel = Instance.new("Frame", gui)
     panel.Size = UDim2.new(0, 400, 0, 300)
     panel.Position = UDim2.new(0.5, -200, 0.5, -150)
     panel.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
     panel.BorderSizePixel = 2
-    panel.Draggable = true  -- Torna o painel arrastável
+    panel.Draggable = true  -- Permite arrastar o painel
 
-    -- Fundo do painel com imagem "brr brr patapim"
-    local imageBackground = Instance.new("ImageLabel", panel)
-    imageBackground.Size = UDim2.new(1, 0, 1, 0)
-    imageBackground.Image = "rbxassetid://86404027639991"  -- ID da sua imagem "brr brr patapim"
-    imageBackground.BackgroundTransparency = 1
-    imageBackground.ScaleType = Enum.ScaleType.Crop
-
+    -- Título do painel
     local title = Instance.new("TextLabel", panel)
     title.Size = UDim2.new(1, 0, 0, 40)
     title.Text = "Xurrasco"
@@ -160,7 +100,7 @@ local function showPanel()
     title.TextSize = 24
     title.TextXAlignment = Enum.TextXAlignment.Center
 
-    -- Botões de Ativar/Desativar ESP e Aimbot
+    -- Botão de Ativar/Desativar ESP
     local espButton = Instance.new("TextButton", panel)
     espButton.Size = UDim2.new(0, 120, 0, 40)
     espButton.Position = UDim2.new(0.5, -130, 0.6, 0)
@@ -174,6 +114,7 @@ local function showPanel()
         espButton.Text = espEnabled and "Desativar ESP" or "Ativar ESP"
     end)
 
+    -- Botão de Ativar/Desativar Aimbot
     local aimbotButton = Instance.new("TextButton", panel)
     aimbotButton.Size = UDim2.new(0, 120, 0, 40)
     aimbotButton.Position = UDim2.new(0.5, -130, 0.7, 0)
