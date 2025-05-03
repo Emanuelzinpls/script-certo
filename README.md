@@ -67,89 +67,38 @@ minimizeIcon.Image = "rbxassetid://105182366707019"  -- Ícone do meme "brr brr 
 minimizeIcon.Visible = true
 minimizeIcon.Parent = gui
 
--- Função para mover o ícone flutuante
-local dragging = false
-local dragInput, dragStart, startPos
-
-minimizeIcon.InputBegan:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 then
-        dragging = true
-        dragStart = input.Position
-        startPos = minimizeIcon.Position
-    end
-end)
-
-minimizeIcon.InputChanged:Connect(function(input)
-    if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
-        local delta = input.Position - dragStart
-        minimizeIcon.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
-    end
-end)
-
-minimizeIcon.InputEnded:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 then
-        dragging = false
-    end
-end)
-
 -- Função para minimizar o painel
 minimizeIcon.MouseButton1Click:Connect(function()
     frame.Visible = false  -- Oculta o painel
     minimizeIcon.Visible = true  -- Exibe o ícone para restaurar
 end)
 
--- Função de ESP para mostrar jogadores próximos
-createButton("👀 Ver Jogadores Próximos", 50, function()
-    for _, player in ipairs(Players:GetPlayers()) do
-        if player ~= LocalPlayer and player.Character and player.Character:FindFirstChild("Head") then
-            local billboard = Instance.new("BillboardGui")
-            billboard.Name = "DebugNameTag"
-            billboard.Adornee = player.Character.Head
-            billboard.Size = UDim2.new(0, 200, 0, 50)
-            billboard.StudsOffset = Vector3.new(0, 2, 0)
-            billboard.AlwaysOnTop = true
-            billboard.Parent = player.Character
-
-            local label = Instance.new("TextLabel")
-            label.Size = UDim2.new(1, 0, 1, 0)
-            label.BackgroundTransparency = 1
-            label.Text = "👤 " .. player.Name
-            label.TextColor3 = Color3.new(1, 1, 1)
-            label.Font = Enum.Font.Gotham
-            label.TextScaled = true
-            label.Parent = billboard
-        end
-    end
-end)
-
--- Análise de movimento
-createButton("📈 Análise de Movimento", 100, function()
-    local char = LocalPlayer.Character
-    if not char then return end
-    local root = char:FindFirstChild("HumanoidRootPart")
-    if not root then return end
-
-    -- Exibir velocidade e movimento do jogador
-    game.StarterGui:SetCore("ChatMakeSystemMessage", {
-        Text = "[DEBUG] Velocidade atual: " .. tostring(root.Velocity.Magnitude),
-        Color = Color3.fromRGB(0, 200, 255)
-    })
-end)
-
--- Simular aimbot (só para visualização)
-createButton("🎯 Simular Aimbot", 150, function()
-    local target = workspace:FindFirstChild("AimbotTarget")
-    if target and target:IsA("Model") then
-        local camera = workspace.CurrentCamera
-        camera.CameraSubject = target
-        camera.CFrame = target.PrimaryPart.CFrame
-    end
-end)
-
 -- Função para restaurar o painel ao clicar no ícone
 minimizeIcon.MouseButton1Click:Connect(function()
     frame.Visible = true  -- Exibe o painel novamente
     minimizeIcon.Visible = false  -- Oculta o ícone após restaurar o painel
+end)
+
+-- Função para permitir arrastar o ícone
+local isDragging = false
+local dragStart = nil
+local startPos = nil
+
+minimizeIcon.MouseButton1Down:Connect(function(input)
+    isDragging = true
+    dragStart = input.Position
+    startPos = minimizeIcon.Position
+end)
+
+minimizeIcon.MouseButton1Up:Connect(function()
+    isDragging = false
+end)
+
+game:GetService("UserInputService").InputChanged:Connect(function(input)
+    if isDragging then
+        local delta = input.Position - dragStart
+        minimizeIcon.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+    end
 end)
 
 -- Exibir painel novamente ao pressionar F6
