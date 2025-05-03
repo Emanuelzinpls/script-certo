@@ -68,7 +68,7 @@ wallhackButton.MouseButton1Click:Connect(function()
     end
 end)
 
--- Função para tornar os jogadores visíveis atrás das paredes e deixá-los vermelhos
+-- Função para tornar os jogadores visíveis atrás das paredes e deixá-los de cor preta forte
 local function wallhack(character)
     if character then
         local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
@@ -78,10 +78,11 @@ local function wallhack(character)
             -- Tornar o personagem semi-transparente para "wallhack"
             humanoidRootPart.LocalTransparencyModifier = 0.5  -- Torna o jogador semi-transparente
             
-            -- Mudar a cor do personagem para vermelho
+            -- Mudar a cor do personagem para um preto bem forte
             for _, part in pairs(character:GetChildren()) do
                 if part:IsA("MeshPart") or part:IsA("Part") then
-                    part.BrickColor = BrickColor.new("Bright red")  -- Torna a parte do corpo vermelha
+                    -- Define a cor preta bem forte
+                    part.BrickColor = BrickColor.new("Black")  -- Cor preta total
                     part.LocalTransparencyModifier = 0.5  -- Aplica transparência
                 end
             end
@@ -89,11 +90,11 @@ local function wallhack(character)
     end
 end
 
--- Função para aplicar o Wallhack em todos os jogadores
+-- Função para aplicar o Wallhack
 local function applyWallhack()
     for _, otherPlayer in pairs(game.Players:GetPlayers()) do
         if otherPlayer.Character and otherPlayer ~= player then
-            -- Chama a função para tornar o jogador visível atrás das paredes e vermelho
+            -- Chama a função para tornar o jogador visível atrás das paredes e preto
             wallhack(otherPlayer.Character)
         end
     end
