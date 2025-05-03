@@ -71,6 +71,20 @@ wallhackButton.MouseButton1Click:Connect(function()
     else
         wallhackButton.Text = "Ativar Wallhack"
         print("Wallhack Desativado")
+        
+        -- Restaurar todos os jogadores para o estado original (desativa o wallhack)
+        for _, otherPlayer in pairs(game.Players:GetPlayers()) do
+            if otherPlayer.Character and otherPlayer ~= player then
+                local character = otherPlayer.Character
+                -- Restaurando a aparência do jogador
+                for _, part in pairs(character:GetChildren()) do
+                    if part:IsA("MeshPart") or part:IsA("Part") then
+                        part.BrickColor = BrickColor.new("Bright blue")  -- Cor original ou qualquer outra
+                        part.Transparency = 0  -- Restaurando a opacidade
+                    end
+                end
+            end
+        end
     end
 end)
 
