@@ -1,4 +1,3 @@
-
 -- Criando o painel flutuante "Xurrasco"
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
@@ -84,28 +83,6 @@ end
 -- Conecta o clique no ícone ao evento de restaurar o painel
 minimizeIcon.MouseButton1Click:Connect(restorePanel)
 
--- Função para permitir arrastar o ícone de minimização
-local isDragging = false
-local dragStart = nil
-local startPos = nil
-
-minimizeIcon.MouseButton1Down:Connect(function(input)
-    isDragging = true
-    dragStart = input.Position
-    startPos = minimizeIcon.Position
-end)
-
-minimizeIcon.MouseButton1Up:Connect(function()
-    isDragging = false
-end)
-
-game:GetService("UserInputService").InputChanged:Connect(function(input)
-    if isDragging then
-        local delta = input.Position - dragStart
-        minimizeIcon.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
-    end
-end)
-
 -- Função para exibir o painel de funções
 createButton("Função ESP", 50, function()
     print("Função ESP ativada")
@@ -115,6 +92,24 @@ end)
 createButton("Função Aimbot", 100, function()
     print("Função Aimbot ativada")
     -- Insira seu código de Aimbot aqui
+end)
+
+-- Permitir arrastar o painel (apenas o painel, não o ícone)
+frame.MouseButton1Down:Connect(function(input)
+    local dragStart = input.Position
+    local startPos = frame.Position
+
+    local dragging = true
+    game:GetService("UserInputService").InputChanged:Connect(function(input)
+        if dragging then
+            local delta = input.Position - dragStart
+            frame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+        end
+    end)
+
+    frame.MouseButton1Up:Connect(function()
+        dragging = false
+    end)
 end)
 
 -- Exibir painel novamente ao pressionar F6
