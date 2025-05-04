@@ -117,6 +117,38 @@ aimbotNpcButton.MouseButton1Click:Connect(function()
     end
 end)
 
+-- Função de Deletação
+local function delet()
+    -- Desativa o Aimbot NPC
+    aimbotNpcActive = false
+    fovCircle.Visible = false
+
+    -- Remove a interface do painel
+    if gui then
+        gui:Destroy()
+    end
+
+    -- Desativa o script atual
+    game:GetService("RunService").RenderStepped:Disconnect()  -- Remove o loop de RenderStepped
+    print("Todos os recursos foram removidos com sucesso.")
+end
+
+-- Botão para ativar a função "Delet"
+local deleteButton = Instance.new("TextButton")
+deleteButton.Size = UDim2.new(0, 150, 0, 40)
+deleteButton.Position = UDim2.new(0.5, -75, 0, 120)
+deleteButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+deleteButton.Text = "Deletar"
+deleteButton.Font = Enum.Font.GothamBold
+deleteButton.TextSize = 18
+deleteButton.TextColor3 = Color3.new(1, 1, 1)
+deleteButton.Parent = frame
+
+-- Conecta a função de deletação ao botão
+deleteButton.MouseButton1Click:Connect(function()
+    delet()  -- Chama a função para remover os recursos
+end)
+
 -- Executa o Aimbot NPC se estiver ativo
 game:GetService("RunService").RenderStepped:Connect(function()
     -- Atualiza a posição do FOV
