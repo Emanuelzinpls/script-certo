@@ -117,7 +117,7 @@ local function showHitboxes()
             local npcPosition = npc.Head.Position
             local screenPos, onScreen = camera:WorldToViewportPoint(npcPosition)
             if onScreen then
-                box.Size = Vector2.new(80, 80)  -- Tamanho da hitbox para 2x
+                box.Size = Vector2.new(160, 160)  -- Tamanho da hitbox para 2x
                 box.Position = Vector2.new(screenPos.X - box.Size.X / 2, screenPos.Y - box.Size.Y / 2)
                 table.insert(npcHitboxes, box)
             end
@@ -216,5 +216,20 @@ runService.RenderStepped:Connect(function()
 
     if fovCircle.Visible then
         fovCircle.Position = Vector2.new(camera.ViewportSize.X / 2, camera.ViewportSize.Y / 2)
+    end
+
+    -- Atualiza as hitboxes enquanto elas estão ativas
+    if hitboxActive then
+        for _, box in pairs(npcHitboxes) do
+            -- Atualiza a posição das hitboxes para acompanharem a câmera
+            local npc = box.Parent
+            if npc and npc:FindFirstChild("Head") then
+                local npcPosition = npc.Head.Position
+                local screenPos, onScreen = camera:WorldToViewportPoint(npcPosition)
+                if onScreen then
+                    box.Position = Vector2.new(screenPos.X - box.Size.X / 2, screenPos.Y - box.Size.Y / 2)
+                end
+            end
+        end
     end
 end)
