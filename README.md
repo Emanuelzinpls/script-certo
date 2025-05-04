@@ -104,7 +104,7 @@ local function aimbotNPC()
     end
 end
 
--- Função para rodar o Aimbot enquanto ele estiver ativado
+-- Função para rodar o Aimbot enquanto estiver ativado
 game:GetService("RunService").RenderStepped:Connect(function()
     if aimbotActive then
         aimbotNPC()  -- Chama a função para mirar nos NPCs
