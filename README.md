@@ -13,6 +13,7 @@ local targetMargin = 5  -- Margem de erro para a hitbox aumentada
 local maxAimbotDistance = 100  -- Distância máxima para o aimbot
 local projectileDamage = 10  -- Dano do projétil
 local hitboxMultiplier = 1  -- Controla o aumento da hitbox (inicializado em 1)
+local hitboxVisible = false  -- Controle de visibilidade da hitbox aumentada
 
 -- Raycast parameters
 local rayParams = RaycastParams.new()
@@ -113,17 +114,20 @@ local function fireProjectile()
             -- Se o inimigo estiver dentro da margem do projétil (multiplicada pela hitbox)
             if distance <= targetMargin * hitboxMultiplier then
                 -- Desenhar a hitbox como uma caixa amarela ao redor do NPC
-                local box = Drawing.new("Square")
-                box.Position = Vector2.new(headPosition.X, headPosition.Y) - Vector2.new(targetMargin * hitboxMultiplier, targetMargin * hitboxMultiplier)
-                box.Size = Vector2.new(targetMargin * 2 * hitboxMultiplier, targetMargin * 2 * hitboxMultiplier)
-                box.Thickness = 2
-                box.Color = Color3.fromRGB(255, 255, 0)  -- Cor amarela
-                box.Filled = false
-                box.Visible = true
+                local screenPos, onScreen = camera:WorldToViewportPoint(headPosition)
+                if onScreen then
+                    local box = Drawing.new("Square")
+                    box.Position = Vector2.new(screenPos.X - targetMargin * hitboxMultiplier, screenPos.Y - targetMargin * hitboxMultiplier)
+                    box.Size = Vector2.new(targetMargin * 2 * hitboxMultiplier, targetMargin * 2 * hitboxMultiplier)
+                    box.Thickness = 2
+                    box.Color = Color3.fromRGB(255, 255, 0)  -- Cor amarela
+                    box.Filled = false
+                    box.Visible = hitboxVisible  -- Agora, a visibilidade é controlada pela variável 'hitboxVisible'
 
-                -- Atrasar a remoção da hitbox para que seja visível por um tempo
-                wait(0.2)
-                box.Visible = false
+                    -- Atrasar a remoção da hitbox para que seja visível por um tempo
+                    wait(0.2)
+                    box.Visible = hitboxVisible
+                end
 
                 -- Aplicar dano ao inimigo
                 local humanoid = obj:FindFirstChild("Humanoid")
@@ -153,20 +157,22 @@ aimbotBtn.MouseButton1Click:Connect(function()
     aimbotBtn.Text = aimbotActive and "🧠 Aimbot NPC [ON]" or "🧠 Aimbot NPC"
 end)
 
--- Tecla Q ativa/desativa Aimbot e aumenta a hitbox
+-- Tecla Q ativa/desativa Aimbot e aumenta/diminui a hitbox
 userInput.InputBegan:Connect(function(input, processed)
     if not processed and input.KeyCode == Enum.KeyCode.Q then
         aimbotActive = not aimbotActive
         fovCircle.Visible = aimbotActive
         aimbotBtn.Text = aimbotActive and "🧠 Aimbot NPC [ON]" or "🧠 Aimbot NPC"
         
-        -- Aumenta a hitbox (se estiver ativada) ao pressionar "Q"
+        -- Toggle da hitbox
         if hitboxMultiplier == 1 then
-            hitboxMultiplier = 2  -- Dobra o tamanho da hitbox
-            print("Hitbox aumentada!")
+            hitboxMultiplier = 2  -- Aumenta a hitbox
+            hitboxVisible = true  -- Torna a hitbox visível
+            print("Hitbox aumentada e visível!")
         else
-            hitboxMultiplier = 1  -- Reseta a hitbox ao tamanho original
-            print("Hitbox normalizada!")
+            hitboxMultiplier = 1  -- Reseta para o tamanho original
+            hitboxVisible = false  -- Torna a hitbox invisível
+            print("Hitbox normalizada e invisível!")
         end
     end
 end)
@@ -190,13 +196,17 @@ deletBtn.MouseButton1Click:Connect(function()
     print("Tudo removido com sucesso.")
 end)
 
--- Atualização da mira e FOV
+-- Atualização da mira, FOV e hitbox
 runService.RenderStepped:Connect(function()
     if aimbotActive then
         aimbotNPC()
     end
 
     if fovCircle.Visible then
-        fovCircle.Position = Vector2.new(mouse.X, mouse.Y)
+        fovCircle.Position = Vector2.new(camera.ViewportSize.X / 2, camera.ViewportSize.Y / 2)
+    end
+
+    if hitboxVisible then
+        fireProjectile()  -- Ativa a função de disparo com a hitbox aumentada
     end
 end)
