@@ -1,4 +1,4 @@
--- Xurrasco Panel com Aimbot NPC, FOV visível, tecla Q e botão Delet
+-- Xurrasco Panel com Aimbot NPC, FOV visível, tecla Q, botão Delet, hitbox aumentada para armas e visualização da hitbox em amarelo
 local player = game.Players.LocalPlayer
 local camera = workspace.CurrentCamera
 local mouse = player:GetMouse()
@@ -9,7 +9,9 @@ local userInput = game:GetService("UserInputService")
 local aimbotActive = false
 local fovRadius = 190
 local wallhackActive = false
-local maxAimbotDistance = 100 -- Distância máxima de 10 metros (100 studs)
+local targetMargin = 5  -- Margem de erro para a hitbox aumentada
+local maxAimbotDistance = 100  -- Distância máxima para o aimbot
+local projectileDamage = 10  -- Dano do projétil
 
 -- Raycast parameters
 local rayParams = RaycastParams.new()
@@ -73,15 +75,11 @@ local function getClosestNPC()
 
     for _, npc in pairs(workspace:GetDescendants()) do
         if npc:IsA("Model") and npc:FindFirstChild("Head") and npc:FindFirstChild("Humanoid") and not game.Players:GetPlayerFromCharacter(npc) then
-            local humanoid = npc:FindFirstChild("Humanoid")
-            -- Verifica se o humanoide está vivo
-            if humanoid and humanoid.Health > 0 then
-                local headPos = npc.Head.Position
-                local screenPos, onScreen = camera:WorldToViewportPoint(headPos)
+            local headPos = npc.Head.Position
+            local screenPos, onScreen = camera:WorldToViewportPoint(headPos)
+            if onScreen then
                 local distance = (Vector2.new(screenPos.X, screenPos.Y) - Vector2.new(mouse.X, mouse.Y)).Magnitude
-                -- Verifica a distância para garantir que o NPC esteja dentro da distância máxima
-                local worldDistance = (camera.CFrame.Position - npc.Head.Position).Magnitude
-                if onScreen and worldDistance <= maxAimbotDistance and distance < shortest then
+                if distance < shortest and distance <= fovRadius then
                     shortest = distance
                     closest = npc.Head
                 end
@@ -96,6 +94,44 @@ local function aimbotNPC()
     local target = getClosestNPC()
     if target then
         camera.CFrame = CFrame.new(camera.CFrame.Position, target.Position)
+    end
+end
+
+-- Função para disparar projétil com hitbox aumentada
+local function fireProjectile()
+    -- Tamanho do "alvo" (margem de erro)
+    local targetPosition = camera.CFrame.Position + camera.CFrame.LookVector * 50  -- Aumente o valor para mais distância
+    local enemies = {}  -- Para armazenar os inimigos atingidos
+
+    -- Desenhando a hitbox aumentada (caixa amarela) em torno dos NPCs atingidos
+    for _, obj in pairs(workspace:GetChildren()) do
+        if obj:IsA("Model") and obj:FindFirstChild("Head") and obj:FindFirstChild("Humanoid") and not game.Players:GetPlayerFromCharacter(obj) then
+            local headPosition = obj.Head.Position
+            local distance = (headPosition - targetPosition).Magnitude
+
+            -- Se o inimigo estiver dentro da margem do projétil
+            if distance <= targetMargin then
+                -- Desenhar a hitbox como uma caixa amarela ao redor do NPC
+                local box = Drawing.new("Square")
+                box.Position = Vector2.new(headPosition.X, headPosition.Y) - Vector2.new(targetMargin, targetMargin)
+                box.Size = Vector2.new(targetMargin * 2, targetMargin * 2)
+                box.Thickness = 2
+                box.Color = Color3.fromRGB(255, 255, 0)  -- Cor amarela
+                box.Filled = false
+                box.Visible = true
+
+                -- Atrasar a remoção da hitbox para que seja visível por um tempo
+                wait(0.2)
+                box.Visible = false
+
+                -- Aplicar dano ao inimigo
+                local humanoid = obj:FindFirstChild("Humanoid")
+                if humanoid then
+                    humanoid:TakeDamage(projectileDamage)  -- Ajuste o dano conforme necessário
+                    print("Inimigo atingido!")
+                end
+            end
+        end
     end
 end
 
@@ -152,5 +188,12 @@ runService.RenderStepped:Connect(function()
 
     if fovCircle.Visible then
         fovCircle.Position = Vector2.new(camera.ViewportSize.X / 2, camera.ViewportSize.Y / 2)
+    end
+end)
+
+-- Função para disparar projétil com hitbox
+userInput.InputBegan:Connect(function(input, processed)
+    if not processed and input.UserInputType == Enum.UserInputType.MouseButton1 then
+        fireProjectile()
     end
 end)
