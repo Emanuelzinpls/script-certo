@@ -32,15 +32,18 @@ local function aimbotNpc()
     local closestTarget = nil
     local closestDistance = math.huge
 
-    -- Procura por NPCs
+    -- Procura por NPCs (ignora players)
     for _, npc in pairs(workspace:GetDescendants()) do
         if npc:IsA("Model") and npc:FindFirstChild("Head") and npc:FindFirstChild("Humanoid") then
-            local head = npc.Head
-            if head and isInFOV(head.Position) then
-                local distance = (head.Position - camera.CFrame.Position).Magnitude
-                if distance < closestDistance then
-                    closestDistance = distance
-                    closestTarget = head
+            -- Verifica se o NPC não é um player
+            if not npc:FindFirstChild("HumanoidRootPart") then  -- Garante que não é um player (players têm HumanoidRootPart)
+                local head = npc.Head
+                if head and isInFOV(head.Position) then
+                    local distance = (head.Position - camera.CFrame.Position).Magnitude
+                    if distance < closestDistance then
+                        closestDistance = distance
+                        closestTarget = head
+                    end
                 end
             end
         end
