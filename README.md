@@ -7,6 +7,7 @@ rayParams.FilterType = Enum.RaycastFilterType.Blacklist
 -- Parâmetros do Aimbot
 local fovRadius = 200
 local aimbotNpcActive = false
+local lastAimbotUpdate = 0  -- Tempo da última atualização do Aimbot
 
 -- Desenhar FOV
 local fovCircle = Drawing.new("Circle")
@@ -32,17 +33,19 @@ local function aimbotNpc()
     local closestTarget = nil
     local closestDistance = math.huge
 
-    -- Procura por NPCs (ignora players)
-    for _, npc in pairs(workspace:GetDescendants()) do
-        if npc:IsA("Model") and npc:FindFirstChild("Head") and npc:FindFirstChild("Humanoid") then
-            -- Verifica se o NPC não é um player
-            if not npc:FindFirstChild("HumanoidRootPart") then  -- Garante que não é um player (players têm HumanoidRootPart)
-                local head = npc.Head
-                if head and isInFOV(head.Position) then
-                    local distance = (head.Position - camera.CFrame.Position).Magnitude
-                    if distance < closestDistance then
-                        closestDistance = distance
-                        closestTarget = head
+    -- Verificar NPCs próximos (para evitar travamento)
+    local playerPos = player.Character and player.Character.HumanoidRootPart.Position
+    if playerPos then
+        for _, npc in pairs(workspace:GetDescendants()) do
+            if npc:IsA("Model") and npc:FindFirstChild("Head") and npc:FindFirstChild("Humanoid") then
+                if not npc:FindFirstChild("HumanoidRootPart") then  -- Ignora players
+                    local head = npc.Head
+                    if head and isInFOV(head.Position) then
+                        local distance = (head.Position - playerPos).Magnitude
+                        if distance < closestDistance then
+                            closestDistance = distance
+                            closestTarget = head
+                        end
                     end
                 end
             end
@@ -51,10 +54,9 @@ local function aimbotNpc()
 
     -- Mira no NPC mais próximo
     if closestTarget then
-        -- Ajusta a CFrame da câmera para mirar na cabeça do NPC
+        -- Ajusta a CFrame da câmera para mirar na cabeça do NPC suavemente
         local humanoidRootPart = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
         if humanoidRootPart then
-            -- Suaviza a transição para evitar tremores
             local targetPosition = closestTarget.Position
             local currentCameraPos = camera.CFrame.Position
             local direction = (targetPosition - currentCameraPos).unit
@@ -119,6 +121,14 @@ aimbotNpcButton.TextSize = 18
 aimbotNpcButton.TextColor3 = Color3.new(1, 1, 1)
 aimbotNpcButton.Parent = frame
 
+-- Adicionando o ícone do Pica-Pau ao botão
+local iconLabel = Instance.new("ImageLabel")
+iconLabel.Size = UDim2.new(0, 30, 0, 30)
+iconLabel.Position = UDim2.new(0, 0, 0.5, -15)  -- Alinha o ícone à esquerda do texto
+iconLabel.BackgroundTransparency = 1
+iconLabel.Image = "rbxassetid://1225495948"  -- ID do ícone do Pica-Pau (substitua pelo ID correto)
+iconLabel.Parent = aimbotNpcButton
+
 -- Função para ativar/desativar o Aimbot NPC
 aimbotNpcButton.MouseButton1Click:Connect(function()
     aimbotNpcActive = not aimbotNpcActive
@@ -163,13 +173,16 @@ deleteButton.MouseButton1Click:Connect(function()
     delet()  -- Chama a função para remover os recursos
 end)
 
--- Executa o Aimbot NPC se estiver ativo
+-- Executa o Aimbot NPC se estiver ativo, mas limitando a atualização para melhorar o desempenho
 game:GetService("RunService").RenderStepped:Connect(function()
     -- Atualiza a posição do FOV
     fovCircle.Position = Vector2.new(camera.ViewportSize.X / 2, camera.ViewportSize.Y / 2)
-    
-    -- Executa o Aimbot NPC
-    if aimbotNpcActive then
-        aimbotNpc()
+
+    -- A cada 0.1 segundos, atualiza a mira do aimbot (evita travamentos)
+    if tick() - lastAimbotUpdate >= 0.1 then
+        if aimbotNpcActive then
+            aimbotNpc()  -- Chama a função do Aimbot NPC
+        end
+        lastAimbotUpdate = tick()  -- Atualiza o tempo da última execução do Aimbot
     end
 end)
