@@ -120,6 +120,35 @@ local function drawHitboxForNPCs()
     end
 end
 
+-- Função Aimbot NPC
+local function getClosestNPC()
+    local closest = nil
+    local shortest = math.huge
+
+    for _, npc in pairs(workspace:GetDescendants()) do
+        if npc:IsA("Model") and npc:FindFirstChild("Head") and npc:FindFirstChild("Humanoid") and not game.Players:GetPlayerFromCharacter(npc) then
+            local headPos = npc.Head.Position
+            local screenPos, onScreen = camera:WorldToViewportPoint(headPos)
+            if onScreen then
+                local distance = (Vector2.new(screenPos.X, screenPos.Y) - Vector2.new(mouse.X, mouse.Y)).Magnitude
+                if distance < shortest and distance <= fovRadius then
+                    shortest = distance
+                    closest = npc.Head
+                end
+            end
+        end
+    end
+
+    return closest
+end
+
+local function aimbotNPC()
+    local target = getClosestNPC()
+    if target then
+        camera.CFrame = CFrame.new(camera.CFrame.Position, target.Position)
+    end
+end
+
 -- Botão 2x Hitbox
 local hitboxBtn = Instance.new("TextButton")
 hitboxBtn.Size = UDim2.new(0, 150, 0, 40)
@@ -146,8 +175,15 @@ hitboxBtn.MouseButton1Click:Connect(function()
     end
 end)
 
--- Tecla H ativa/desativa o aumento da hitbox de todos os NPCs
+-- Tecla Q ativa/desativa Aimbot
 userInput.InputBegan:Connect(function(input, processed)
+    if not processed and input.KeyCode == Enum.KeyCode.Q then
+        aimbotActive = not aimbotActive
+        fovCircle.Visible = aimbotActive
+        aimbotBtn.Text = aimbotActive and "🧠 Aimbot NPC [ON]" or "🧠 Aimbot NPC"
+    end
+
+    -- Tecla H ativa/desativa o aumento da hitbox de todos os NPCs
     if not processed and input.KeyCode == Enum.KeyCode.H then
         if hitboxMultiplier == 1 then
             hitboxMultiplier = 2  -- Aumenta a hitbox
@@ -162,32 +198,18 @@ userInput.InputBegan:Connect(function(input, processed)
     end
 end)
 
--- Botão Delet
-local deletBtn = Instance.new("TextButton")
-deletBtn.Size = UDim2.new(0, 150, 0, 40)
-deletBtn.Position = UDim2.new(0.5, -75, 0, 180)
-deletBtn.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
-deletBtn.Text = "❌ Delet"
-deletBtn.Font = Enum.Font.GothamBold
-deletBtn.TextSize = 18
-deletBtn.TextColor3 = Color3.new(1, 1, 1)
-deletBtn.Parent = frame
-
-deletBtn.MouseButton1Click:Connect(function()
-    aimbotActive = false
-    fovCircle.Visible = false
-    gui:Destroy()
-    fovCircle:Remove()
-    print("Tudo removido com sucesso.")
-end)
-
--- Atualização da mira, FOV e hitbox
+-- Atualização da mira e FOV
 runService.RenderStepped:Connect(function()
-    if hitboxVisible then
-        drawHitboxForNPCs()  -- Desenha a hitbox de todos os NPCs
+    if aimbotActive then
+        aimbotNPC()
     end
 
     if fovCircle.Visible then
         fovCircle.Position = Vector2.new(camera.ViewportSize.X / 2, camera.ViewportSize.Y / 2)
+    end
+
+    -- Desenha a hitbox aumentada se estiver ativada
+    if hitboxVisible then
+        drawHitboxForNPCs()
     end
 end)
