@@ -1,3 +1,4 @@
+-- Xurrasco Panel com Aimbot NPC, FOV visível, tecla Q e botão Delet
 local player = game.Players.LocalPlayer
 local camera = workspace.CurrentCamera
 local mouse = player:GetMouse()
@@ -94,51 +95,39 @@ local function aimbotNPC()
     end
 end
 
--- Função para 2x Hitbox
-local function createHitboxForNPC(npc, sizeMultiplier)
-    local billboard = Instance.new("BillboardGui")
-    billboard.Name = "XurrascoHitbox"
-    billboard.Adornee = npc.Head
-    billboard.Size = UDim2.new(5 * sizeMultiplier, 0, 5 * sizeMultiplier, 0) -- Aumenta o tamanho da hitbox em 5x (multiplicador)
-    billboard.AlwaysOnTop = true
-    billboard.Parent = npc
-
-    local box = Instance.new("Frame")
-    box.Size = UDim2.new(1, 0, 1, 0)
-    box.BackgroundColor3 = Color3.new(1, 1, 0) -- Amarelo
-    box.BackgroundTransparency = 0.4
-    box.BorderSizePixel = 2
-    box.BorderColor3 = Color3.new(1, 1, 0)
-    box.Parent = billboard
-end
-
-local function toggleHitbox(sizeMultiplier)
+-- Função 2x Hitbox
+local function toggleHitbox()
     hitboxEnabled = not hitboxEnabled
 
     if hitboxEnabled then
-        -- Criação de hitboxes para NPCs já existentes
         for _, npc in pairs(workspace:GetDescendants()) do
             if npc:IsA("Model") and npc:FindFirstChild("Head") and npc:FindFirstChild("Humanoid") and not game.Players:GetPlayerFromCharacter(npc) then
-                createHitboxForNPC(npc, sizeMultiplier)
+                local billboard = Instance.new("BillboardGui")
+                billboard.Name = "XurrascoHitbox"
+                billboard.Adornee = npc.Head
+                billboard.Size = UDim2.new(10, 0, 10, 0) -- Aumentando o tamanho da hitbox em 5x
+                billboard.AlwaysOnTop = true
+                billboard.Parent = npc
+
+                local box = Instance.new("Frame")
+                box.Size = UDim2.new(1, 0, 1, 0)
+                box.BackgroundColor3 = Color3.new(1, 1, 0) -- Amarelo
+                box.BackgroundTransparency = 0.4
+                box.BorderSizePixel = 2
+                box.BorderColor3 = Color3.new(1, 1, 0)
+                box.Parent = billboard
+
+                table.insert(createdHitboxes, billboard)
             end
         end
-
-        -- Monitorando novos NPCs que aparecerem no jogo
-        workspace.DescendantAdded:Connect(function(npc)
-            if npc:IsA("Model") and npc:FindFirstChild("Head") and npc:FindFirstChild("Humanoid") and not game.Players:GetPlayerFromCharacter(npc) then
-                createHitboxForNPC(npc, sizeMultiplier)
-            end
-        end)
     else
         -- Remover todas as hitboxes
-        for _, npc in pairs(workspace:GetDescendants()) do
-            if npc:IsA("Model") and npc:FindFirstChild("Head") then
-                local hitbox = npc:FindFirstChild("XurrascoHitbox")
-                if hitbox then
-                    hitbox:Destroy()
-                end
+        for _, gui in pairs(createdHitboxes) do
+            if gui and gui.Parent then
+                gui:Destroy()
             end
         end
+        createdHitboxes = {}
     end
 end
 
@@ -162,16 +151,26 @@ end)
 -- Botão 2x Hitbox
 local hitboxBtn = Instance.new("TextButton")
 hitboxBtn.Size = UDim2.new(0, 150, 0, 40)
-hitboxBtn.Position = UDim2.new(0.5, -75, 0, 110)
+hitboxBtn.Position = UDim2.new(0.5, -75, 0, 120)
 hitboxBtn.BackgroundColor3 = Color3.fromRGB(255, 255, 0)
-hitboxBtn.Text = "2x Hitbox"
+hitboxBtn.Text = "⚡ 2x Hitbox"
 hitboxBtn.Font = Enum.Font.GothamBold
 hitboxBtn.TextSize = 18
 hitboxBtn.TextColor3 = Color3.new(1, 1, 1)
 hitboxBtn.Parent = frame
 
 hitboxBtn.MouseButton1Click:Connect(function()
-    toggleHitbox(5) -- Multiplicador de 5x para a hitbox
+    toggleHitbox()
+    hitboxBtn.Text = hitboxEnabled and "⚡ 2x Hitbox [ON]" or "⚡ 2x Hitbox"
+end)
+
+-- Tecla Q ativa/desativa Aimbot
+userInput.InputBegan:Connect(function(input, processed)
+    if not processed and input.KeyCode == Enum.KeyCode.Q then
+        aimbotActive = not aimbotActive
+        fovCircle.Visible = aimbotActive
+        aimbotBtn.Text = aimbotActive and "🧠 Aimbot NPC [ON]" or "🧠 Aimbot NPC"
+    end
 end)
 
 -- Botão Delet
@@ -191,15 +190,6 @@ deletBtn.MouseButton1Click:Connect(function()
     gui:Destroy()
     fovCircle:Remove()
     print("Tudo removido com sucesso.")
-end)
-
--- Tecla Q ativa/desativa Aimbot
-userInput.InputBegan:Connect(function(input, processed)
-    if not processed and input.KeyCode == Enum.KeyCode.Q then
-        aimbotActive = not aimbotActive
-        fovCircle.Visible = aimbotActive
-        aimbotBtn.Text = aimbotActive and "🧠 Aimbot NPC [ON]" or "🧠 Aimbot NPC"
-    end
 end)
 
 -- Atualização da mira e FOV
