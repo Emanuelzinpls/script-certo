@@ -121,14 +121,6 @@ aimbotNpcButton.TextSize = 18
 aimbotNpcButton.TextColor3 = Color3.new(1, 1, 1)
 aimbotNpcButton.Parent = frame
 
--- Adicionando o ícone do Pica-Pau ao botão
-local iconLabel = Instance.new("ImageLabel")
-iconLabel.Size = UDim2.new(0, 30, 0, 30)
-iconLabel.Position = UDim2.new(0, 0, 0.5, -15)  -- Alinha o ícone à esquerda do texto
-iconLabel.BackgroundTransparency = 1
-iconLabel.Image = "rbxassetid://1225495948"  -- ID do ícone do Pica-Pau (substitua pelo ID correto)
-iconLabel.Parent = aimbotNpcButton
-
 -- Função para ativar/desativar o Aimbot NPC
 aimbotNpcButton.MouseButton1Click:Connect(function()
     aimbotNpcActive = not aimbotNpcActive
