@@ -9,6 +9,7 @@ local userInput = game:GetService("UserInputService")
 local aimbotActive = false
 local fovRadius = 190
 local wallhackActive = false
+local maxAimbotDistance = 100 -- Distância máxima de 10 metros (100 studs)
 
 -- Raycast parameters
 local rayParams = RaycastParams.new()
@@ -74,12 +75,12 @@ local function getClosestNPC()
         if npc:IsA("Model") and npc:FindFirstChild("Head") and npc:FindFirstChild("Humanoid") and not game.Players:GetPlayerFromCharacter(npc) then
             local headPos = npc.Head.Position
             local screenPos, onScreen = camera:WorldToViewportPoint(headPos)
-            if onScreen then
-                local distance = (Vector2.new(screenPos.X, screenPos.Y) - Vector2.new(mouse.X, mouse.Y)).Magnitude
-                if distance < shortest and distance <= fovRadius then
-                    shortest = distance
-                    closest = npc.Head
-                end
+            local distance = (Vector2.new(screenPos.X, screenPos.Y) - Vector2.new(mouse.X, mouse.Y)).Magnitude
+            -- Verifica a distância para garantir que o NPC esteja dentro da distância máxima
+            local worldDistance = (camera.CFrame.Position - npc.Head.Position).Magnitude
+            if onScreen and worldDistance <= maxAimbotDistance and distance < shortest then
+                shortest = distance
+                closest = npc.Head
             end
         end
     end
