@@ -8,7 +8,6 @@ local userInput = game:GetService("UserInputService")
 -- Variáveis de controle
 local aimbotActive = false
 local fovRadius = 190
-local wallhackActive = false
 local hitboxActive = false
 local hitboxMultiplier = 2 -- 2x Hitbox
 local hitboxes = {} -- Tabela para armazenar as hitboxes desenhadas
@@ -102,57 +101,13 @@ local function aimbotNPC()
     end
 end
 
--- Botão Aimbot NPC
-local aimbotBtn = Instance.new("TextButton")
-aimbotBtn.Size = UDim2.new(0, 150, 0, 40)
-aimbotBtn.Position = UDim2.new(0.5, -75, 0, 60)
-aimbotBtn.BackgroundColor3 = Color3.fromRGB(0, 0, 255)
-aimbotBtn.Text = "🧠 Aimbot NPC"
-aimbotBtn.Font = Enum.Font.GothamBold
-aimbotBtn.TextSize = 18
-aimbotBtn.TextColor3 = Color3.new(1, 1, 1)
-aimbotBtn.Parent = frame
-
-aimbotBtn.MouseButton1Click:Connect(function()
-    aimbotActive = not aimbotActive
-    fovCircle.Visible = aimbotActive
-    aimbotBtn.Text = aimbotActive and "🧠 Aimbot NPC [ON]" or "🧠 Aimbot NPC"
-end)
-
--- Tecla Q ativa/desativa Aimbot
-userInput.InputBegan:Connect(function(input, processed)
-    if not processed and input.KeyCode == Enum.KeyCode.Q then
-        aimbotActive = not aimbotActive
-        fovCircle.Visible = aimbotActive
-        aimbotBtn.Text = aimbotActive and "🧠 Aimbot NPC [ON]" or "🧠 Aimbot NPC"
-    end
-end)
-
--- Botão Delet
-local deletBtn = Instance.new("TextButton")
-deletBtn.Size = UDim2.new(0, 150, 0, 40)
-deletBtn.Position = UDim2.new(0.5, -75, 0, 180)
-deletBtn.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
-deletBtn.Text = "❌ Delet"
-deletBtn.Font = Enum.Font.GothamBold
-deletBtn.TextSize = 18
-deletBtn.TextColor3 = Color3.new(1, 1, 1)
-deletBtn.Parent = frame
-
-deletBtn.MouseButton1Click:Connect(function()
-    aimbotActive = false
-    fovCircle.Visible = false
-    gui:Destroy()
-    fovCircle:Remove()
-    print("Tudo removido com sucesso.")
-end)
-
 -- Função 2x Hitbox
 local function drawHitbox(npc)
     if hitboxActive then
         if npc:FindFirstChild("Head") then
             local headPos = npc.Head.Position
-            local hitboxSize = npc.Head.Size * hitboxMultiplier
+            local headSize = npc.Head.Size
+            local hitboxSize = headSize * hitboxMultiplier
             local screenPos, onScreen = camera:WorldToViewportPoint(headPos)
             
             -- Desenha a caixa de hitbox apenas se o NPC estiver visível
@@ -215,3 +170,4 @@ runService.RenderStepped:Connect(function()
         end
     end
 end)
+
