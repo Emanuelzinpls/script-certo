@@ -157,6 +157,7 @@ local function drawHitbox(npc)
             
             -- Desenha a caixa de hitbox apenas se o NPC estiver visível
             if onScreen then
+                -- Criar a caixa de hitbox
                 local hitboxBox = Drawing.new("Square")
                 hitboxBox.Position = Vector2.new(screenPos.X - hitboxSize.X/2, screenPos.Y - hitboxSize.Y/2)
                 hitboxBox.Size = Vector2.new(hitboxSize.X, hitboxSize.Y)
