@@ -42,7 +42,7 @@ iconButton.TextButton1Click:Connect(function()
     frame.Visible = not frame.Visible  -- Alterna a visibilidade do painel
 end)
 
--- Botão para ativar/desativar o Aimbot NPC
+-- Função para ativar/desativar o Aimbot NPC
 local aimbotButton = Instance.new("TextButton")
 aimbotButton.Size = UDim2.new(0, 150, 0, 40)
 aimbotButton.Position = UDim2.new(0.5, -75, 0, 120)
@@ -63,6 +63,39 @@ aimbotButton.MouseButton1Click:Connect(function()
         aimbotButton.Text = "Ativar Aimbot NPC"
         print("Aimbot NPC Desativado")
     end
+end)
+
+-- Função Delet: Desativa tudo e remove as funções
+local function delet()
+    aimbotActive = false
+    wallhackActive = false
+    frame.Visible = false  -- Esconde o painel
+
+    -- Desativa o Aimbot NPC
+    aimbotButton.Text = "Ativar Aimbot NPC"
+    print("Aimbot NPC Desativado")
+
+    -- Desativa o Wallhack
+    print("Wallhack Desativado")
+
+    -- Limpeza de outros efeitos, se houver
+    -- Coloque aqui o código de reset ou limpeza, se necessário
+end
+
+-- Botão para ativar/desativar a função delet (limpeza)
+local deletButton = Instance.new("TextButton")
+deletButton.Size = UDim2.new(0, 150, 0, 40)
+deletButton.Position = UDim2.new(0.5, -75, 0, 180)
+deletButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0)  -- Cor do botão
+deletButton.Text = "Deletar Funções"
+deletButton.Font = Enum.Font.GothamBold
+deletButton.TextSize = 18
+deletButton.TextColor3 = Color3.new(1, 1, 1)
+deletButton.Parent = frame
+
+-- Função para chamar a função delet
+deletButton.MouseButton1Click:Connect(function()
+    delet()
 end)
 
 -- Rodando o Aimbot enquanto ele estiver ativado
