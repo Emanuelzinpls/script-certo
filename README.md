@@ -12,6 +12,7 @@ local wallhackActive = false
 local targetMargin = 5  -- Margem de erro para a hitbox aumentada
 local maxAimbotDistance = 100  -- Distância máxima para o aimbot
 local projectileDamage = 10  -- Dano do projétil
+local hitboxMultiplier = 1  -- Controla o aumento da hitbox (inicializado em 1)
 
 -- Raycast parameters
 local rayParams = RaycastParams.new()
@@ -109,12 +110,12 @@ local function fireProjectile()
             local headPosition = obj.Head.Position
             local distance = (headPosition - targetPosition).Magnitude
 
-            -- Se o inimigo estiver dentro da margem do projétil
-            if distance <= targetMargin then
+            -- Se o inimigo estiver dentro da margem do projétil (multiplicada pela hitbox)
+            if distance <= targetMargin * hitboxMultiplier then
                 -- Desenhar a hitbox como uma caixa amarela ao redor do NPC
                 local box = Drawing.new("Square")
-                box.Position = Vector2.new(headPosition.X, headPosition.Y) - Vector2.new(targetMargin, targetMargin)
-                box.Size = Vector2.new(targetMargin * 2, targetMargin * 2)
+                box.Position = Vector2.new(headPosition.X, headPosition.Y) - Vector2.new(targetMargin * hitboxMultiplier, targetMargin * hitboxMultiplier)
+                box.Size = Vector2.new(targetMargin * 2 * hitboxMultiplier, targetMargin * 2 * hitboxMultiplier)
                 box.Thickness = 2
                 box.Color = Color3.fromRGB(255, 255, 0)  -- Cor amarela
                 box.Filled = false
@@ -152,12 +153,21 @@ aimbotBtn.MouseButton1Click:Connect(function()
     aimbotBtn.Text = aimbotActive and "🧠 Aimbot NPC [ON]" or "🧠 Aimbot NPC"
 end)
 
--- Tecla Q ativa/desativa Aimbot
+-- Tecla Q ativa/desativa Aimbot e aumenta a hitbox
 userInput.InputBegan:Connect(function(input, processed)
     if not processed and input.KeyCode == Enum.KeyCode.Q then
         aimbotActive = not aimbotActive
         fovCircle.Visible = aimbotActive
         aimbotBtn.Text = aimbotActive and "🧠 Aimbot NPC [ON]" or "🧠 Aimbot NPC"
+        
+        -- Aumenta a hitbox (se estiver ativada) ao pressionar "Q"
+        if hitboxMultiplier == 1 then
+            hitboxMultiplier = 2  -- Dobra o tamanho da hitbox
+            print("Hitbox aumentada!")
+        else
+            hitboxMultiplier = 1  -- Reseta a hitbox ao tamanho original
+            print("Hitbox normalizada!")
+        end
     end
 end)
 
@@ -187,13 +197,6 @@ runService.RenderStepped:Connect(function()
     end
 
     if fovCircle.Visible then
-        fovCircle.Position = Vector2.new(camera.ViewportSize.X / 2, camera.ViewportSize.Y / 2)
-    end
-end)
-
--- Função para disparar projétil com hitbox
-userInput.InputBegan:Connect(function(input, processed)
-    if not processed and input.UserInputType == Enum.UserInputType.MouseButton1 then
-        fireProjectile()
+        fovCircle.Position = Vector2.new(mouse.X, mouse.Y)
     end
 end)
