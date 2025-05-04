@@ -8,8 +8,7 @@ local userInput = game:GetService("UserInputService")
 -- Variáveis de controle
 local aimbotActive = false
 local fovRadius = 190
-local wallhackActive = false
-local hitboxMultiplier = 1  -- Controla o aumento da hitbox (inicializado em 1)
+local hitboxMultiplier = 2  -- Tamanho da hitbox
 local hitboxVisible = false  -- Controle de visibilidade da hitbox aumentada
 
 -- Raycast parameters
@@ -67,35 +66,9 @@ title.Font = Enum.Font.GothamBold
 title.TextSize = 22
 title.Parent = frame
 
--- Função para aumentar a hitbox de todos os NPCs
-local function increaseHitboxForAllNPCs()
-    for _, obj in pairs(workspace:GetDescendants()) do
-        if obj:IsA("Model") and obj:FindFirstChild("Humanoid") then
-            -- Aumentando o tamanho das partes principais (Head, HumanoidRootPart, etc)
-            local humanoid = obj:FindFirstChild("Humanoid")
-            local head = obj:FindFirstChild("Head")
-            local humanoidRootPart = obj:FindFirstChild("HumanoidRootPart")
-
-            if head then
-                head.Size = head.Size * hitboxMultiplier  -- Aumenta a hitbox da cabeça
-            end
-
-            if humanoidRootPart then
-                humanoidRootPart.Size = humanoidRootPart.Size * hitboxMultiplier  -- Aumenta a hitbox do corpo
-            end
-
-            -- Aumenta o tamanho das partes do corpo do NPC (caso haja outras partes, como braços, pernas)
-            for _, part in pairs(obj:GetChildren()) do
-                if part:IsA("Part") then
-                    part.Size = part.Size * hitboxMultiplier  -- Aumenta a hitbox das partes
-                end
-            end
-        end
-    end
-end
-
--- Função para desenhar a hitbox
+-- Função para desenhar a hitbox aumentada
 local function drawHitboxForNPCs()
+    -- Remover qualquer caixa de colisão existente antes de desenhar uma nova
     for _, obj in pairs(workspace:GetDescendants()) do
         if obj:IsA("Model") and obj:FindFirstChild("Humanoid") then
             local humanoidRootPart = obj:FindFirstChild("HumanoidRootPart")
@@ -104,7 +77,7 @@ local function drawHitboxForNPCs()
                 if onScreen then
                     -- Desenhando a hitbox aumentada (caixa amarela) ao redor dos NPCs
                     local box = Drawing.new("Square")
-                    box.Position = Vector2.new(screenPos.X - humanoidRootPart.Size.X / 2, screenPos.Y - humanoidRootPart.Size.Y / 2)
+                    box.Position = Vector2.new(screenPos.X - humanoidRootPart.Size.X / 2 * hitboxMultiplier, screenPos.Y - humanoidRootPart.Size.Y / 2 * hitboxMultiplier)
                     box.Size = Vector2.new(humanoidRootPart.Size.X * hitboxMultiplier, humanoidRootPart.Size.Y * hitboxMultiplier)
                     box.Thickness = 2
                     box.Color = Color3.fromRGB(255, 255, 0)  -- Cor amarela
@@ -178,17 +151,11 @@ hitboxBtn.TextColor3 = Color3.new(1, 1, 1)
 hitboxBtn.Parent = frame
 
 hitboxBtn.MouseButton1Click:Connect(function()
-    if hitboxMultiplier == 1 then
-        hitboxMultiplier = 2  -- Aumenta a hitbox
-        hitboxVisible = true  -- Torna a hitbox visível
+    hitboxVisible = not hitboxVisible  -- Alterna a visibilidade da hitbox
+    if hitboxVisible then
         hitboxBtn.Text = "2x Hitbox [ON]"
-        increaseHitboxForAllNPCs()  -- Aumenta a hitbox de todos os NPCs
-        print("Hitbox aumentada de todos os NPCs!")
     else
-        hitboxMultiplier = 1  -- Reseta para o tamanho original
-        hitboxVisible = false  -- Torna a hitbox invisível
         hitboxBtn.Text = "2x Hitbox"
-        print("Hitbox normalizada de todos os NPCs!")
     end
 end)
 
@@ -211,7 +178,7 @@ deletBtn.MouseButton1Click:Connect(function()
     print("Tudo removido com sucesso.")
 end)
 
--- Atualização da mira e FOV
+-- Atualização da mira, FOV e hitbox
 runService.RenderStepped:Connect(function()
     if aimbotActive then
         aimbotNPC()
