@@ -10,7 +10,7 @@ local aimbotActive = false
 local fovRadius = 190
 local wallhackActive = false
 local hitboxActive = false
-local hitboxMultiplier = 1 -- Multiplicador para o tamanho da hitbox (2x)
+local hitboxMultiplier = 2 -- 2x Hitbox
 local hitboxes = {} -- Tabela para armazenar as hitboxes desenhadas
 
 -- Raycast parameters
@@ -153,18 +153,24 @@ local function drawHitbox(npc)
         if npc:FindFirstChild("Head") then
             local headPos = npc.Head.Position
             local hitboxSize = npc.Head.Size * hitboxMultiplier
-            local hitboxBox = Drawing.new("Square")
-            hitboxBox.Position = camera:WorldToViewportPoint(headPos - Vector3.new(hitboxSize.X/2, hitboxSize.Y/2, hitboxSize.Z/2))
-            hitboxBox.Size = Vector2.new(hitboxSize.X, hitboxSize.Y)
-            hitboxBox.Color = Color3.fromRGB(255, 255, 0)
-            hitboxBox.Thickness = 2
-            hitboxBox.Filled = false
-            table.insert(hitboxes, hitboxBox)
+            local screenPos, onScreen = camera:WorldToViewportPoint(headPos)
+            
+            -- Desenha a caixa de hitbox apenas se o NPC estiver visível
+            if onScreen then
+                local hitboxBox = Drawing.new("Square")
+                hitboxBox.Position = Vector2.new(screenPos.X - hitboxSize.X/2, screenPos.Y - hitboxSize.Y/2)
+                hitboxBox.Size = Vector2.new(hitboxSize.X, hitboxSize.Y)
+                hitboxBox.Color = Color3.fromRGB(255, 255, 0)
+                hitboxBox.Thickness = 2
+                hitboxBox.Filled = false
+                table.insert(hitboxes, hitboxBox)
+            end
         end
     end
 end
 
 local function clearHitboxes()
+    -- Limpa as hitboxes desenhadas
     for _, box in ipairs(hitboxes) do
         box:Remove()
     end
@@ -200,7 +206,8 @@ runService.RenderStepped:Connect(function()
         fovCircle.Position = Vector2.new(camera.ViewportSize.X / 2, camera.ViewportSize.Y / 2)
     end
 
-    -- Desenhar hitboxes para NPCs
+    -- Limpa e redesenha as hitboxes para NPCs
+    clearHitboxes()
     for _, npc in pairs(workspace:GetDescendants()) do
         if npc:IsA("Model") and npc:FindFirstChild("Humanoid") then
             drawHitbox(npc)
