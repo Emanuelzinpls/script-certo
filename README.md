@@ -157,14 +157,18 @@ aimbotBtn.MouseButton1Click:Connect(function()
     aimbotBtn.Text = aimbotActive and "🧠 Aimbot NPC [ON]" or "🧠 Aimbot NPC"
 end)
 
--- Tecla Q ativa/desativa Aimbot e aumenta/diminui a hitbox
+-- Tecla Q ativa/desativa Aimbot
 userInput.InputBegan:Connect(function(input, processed)
     if not processed and input.KeyCode == Enum.KeyCode.Q then
         aimbotActive = not aimbotActive
         fovCircle.Visible = aimbotActive
         aimbotBtn.Text = aimbotActive and "🧠 Aimbot NPC [ON]" or "🧠 Aimbot NPC"
-        
-        -- Toggle da hitbox
+    end
+end)
+
+-- Tecla H ativa/desativa o aumento da hitbox e a visualização
+userInput.InputBegan:Connect(function(input, processed)
+    if not processed and input.KeyCode == Enum.KeyCode.H then
         if hitboxMultiplier == 1 then
             hitboxMultiplier = 2  -- Aumenta a hitbox
             hitboxVisible = true  -- Torna a hitbox visível
