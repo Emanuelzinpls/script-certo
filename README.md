@@ -1,4 +1,4 @@
--- Xurrasco Panel com Aimbot NPC, FOV visível, tecla Q, botão Delet, hitbox aumentada para armas e visualização da hitbox em amarelo
+-- Xurrasco Panel com Aimbot NPC, FOV visível, tecla Q, botão Delet, 2x Hitbox e visualização da hitbox em amarelo
 local player = game.Players.LocalPlayer
 local camera = workspace.CurrentCamera
 local mouse = player:GetMouse()
@@ -178,6 +178,31 @@ userInput.InputBegan:Connect(function(input, processed)
             hitboxVisible = false  -- Torna a hitbox invisível
             print("Hitbox normalizada e invisível!")
         end
+    end
+end)
+
+-- Botão 2x Hitbox
+local hitboxBtn = Instance.new("TextButton")
+hitboxBtn.Size = UDim2.new(0, 150, 0, 40)
+hitboxBtn.Position = UDim2.new(0.5, -75, 0, 120)
+hitboxBtn.BackgroundColor3 = Color3.fromRGB(255, 255, 0)
+hitboxBtn.Text = "2x Hitbox"
+hitboxBtn.Font = Enum.Font.GothamBold
+hitboxBtn.TextSize = 18
+hitboxBtn.TextColor3 = Color3.new(1, 1, 1)
+hitboxBtn.Parent = frame
+
+hitboxBtn.MouseButton1Click:Connect(function()
+    if hitboxMultiplier == 1 then
+        hitboxMultiplier = 2  -- Aumenta a hitbox
+        hitboxVisible = true  -- Torna a hitbox visível
+        hitboxBtn.Text = "2x Hitbox [ON]"
+        print("Hitbox aumentada e visível!")
+    else
+        hitboxMultiplier = 1  -- Reseta para o tamanho original
+        hitboxVisible = false  -- Torna a hitbox invisível
+        hitboxBtn.Text = "2x Hitbox"
+        print("Hitbox normalizada e invisível!")
     end
 end)
 
