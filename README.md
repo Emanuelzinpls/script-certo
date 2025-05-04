@@ -1,18 +1,17 @@
--- Xurrasco Panel FINAL com Aimbot, FOV, Delet, e 2x Hitbox
+-- Xurrasco Panel com Aimbot NPC, FOV visível, tecla Q, 2x Hitbox e botão Delet
 local player = game.Players.LocalPlayer
 local camera = workspace.CurrentCamera
 local mouse = player:GetMouse()
 local runService = game:GetService("RunService")
 local userInput = game:GetService("UserInputService")
 
--- Variáveis
+-- Variáveis de controle
 local aimbotActive = false
 local fovRadius = 190
-local maxAimbotDistance = 100 -- 10 metros = 100 studs
-local hitboxEnabled = false
-local hitboxes = {}
+local maxDistance = 100 -- 10 metros
+local hitboxActive = false
 
--- GUI
+-- GUI Principal
 local gui = Instance.new("ScreenGui")
 gui.Name = "XurrascoPanel"
 gui.ResetOnSpawn = false
@@ -27,7 +26,7 @@ fovCircle.Color = Color3.fromRGB(255, 0, 0)
 fovCircle.Filled = false
 fovCircle.Visible = false
 
--- Painel
+-- Frame principal
 local frame = Instance.new("Frame")
 frame.Size = UDim2.new(0, 400, 0, 300)
 frame.Position = UDim2.new(0.5, -200, 0.5, -150)
@@ -35,18 +34,18 @@ frame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
 frame.BackgroundTransparency = 0.5
 frame.Active = true
 frame.Draggable = true
-frame.Visible = false
 frame.Parent = gui
+frame.Visible = false
 
--- Ícone flutuante
+-- Ícone
 local icon = Instance.new("ImageButton")
 icon.Size = UDim2.new(0, 50, 0, 50)
 icon.Position = UDim2.new(0.5, -25, 0, 10)
 icon.Image = "rbxassetid://105182366707019"
 icon.BackgroundTransparency = 1
-icon.Draggable = true
 icon.Parent = gui
-
+icon.Active = true
+icon.Draggable = true
 icon.MouseButton1Click:Connect(function()
     frame.Visible = not frame.Visible
 end)
@@ -61,20 +60,22 @@ title.Font = Enum.Font.GothamBold
 title.TextSize = 22
 title.Parent = frame
 
--- Aimbot Função
+-- Função Aimbot NPC
 local function getClosestNPC()
     local closest = nil
-    local shortest = math.huge
+    local shortest = maxDistance
     for _, npc in pairs(workspace:GetDescendants()) do
-        if npc:IsA("Model") and npc:FindFirstChild("Head") and npc:FindFirstChild("Humanoid") and npc.Humanoid.Health > 0 and not game.Players:GetPlayerFromCharacter(npc) then
-            local headPos = npc.Head.Position
-            local screenPos, onScreen = camera:WorldToViewportPoint(headPos)
-            local distance = (camera.CFrame.Position - headPos).Magnitude
-            if onScreen and distance <= maxAimbotDistance then
-                local dist2D = (Vector2.new(screenPos.X, screenPos.Y) - Vector2.new(mouse.X, mouse.Y)).Magnitude
-                if dist2D < shortest and dist2D <= fovRadius then
-                    shortest = dist2D
-                    closest = npc.Head
+        if npc:IsA("Model") and npc:FindFirstChild("Head") and npc:FindFirstChild("Humanoid") then
+            if npc.Humanoid.Health > 0 and not game.Players:GetPlayerFromCharacter(npc) then
+                local head = npc.Head
+                local headPos = head.Position
+                local screenPos, onScreen = camera:WorldToViewportPoint(headPos)
+                if onScreen then
+                    local distance = (Vector2.new(screenPos.X, screenPos.Y) - Vector2.new(mouse.X, mouse.Y)).Magnitude
+                    if distance < shortest then
+                        shortest = distance
+                        closest = head
+                    end
                 end
             end
         end
@@ -106,17 +107,10 @@ aimbotBtn.MouseButton1Click:Connect(function()
     aimbotBtn.Text = aimbotActive and "🧠 Aimbot NPC [ON]" or "🧠 Aimbot NPC"
 end)
 
--- Tecla Q alterna Aimbot
-userInput.InputBegan:Connect(function(input, processed)
-    if not processed and input.KeyCode == Enum.KeyCode.Q then
-        aimbotBtn:Activate()
-    end
-end)
-
 -- Botão Delet
 local deletBtn = Instance.new("TextButton")
 deletBtn.Size = UDim2.new(0, 150, 0, 40)
-deletBtn.Position = UDim2.new(0.5, -75, 0, 110)
+deletBtn.Position = UDim2.new(0.5, -75, 0, 240)
 deletBtn.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
 deletBtn.Text = "❌ Delet"
 deletBtn.Font = Enum.Font.GothamBold
@@ -126,69 +120,30 @@ deletBtn.Parent = frame
 
 deletBtn.MouseButton1Click:Connect(function()
     aimbotActive = false
+    hitboxActive = false
     fovCircle.Visible = false
     gui:Destroy()
     fovCircle:Remove()
-    for _, h in pairs(hitboxes) do
-        h:Destroy()
-    end
-    table.clear(hitboxes)
+    print("Tudo removido com sucesso.")
 end)
 
--- Botão 2x Hitbox
-local hitboxBtn = Instance.new("TextButton")
-hitboxBtn.Size = UDim2.new(0, 150, 0, 40)
-hitboxBtn.Position = UDim2.new(0.5, -75, 0, 160)
-hitboxBtn.BackgroundColor3 = Color3.fromRGB(255, 255, 0)
-hitboxBtn.Text = "⚔️ 2x Hitbox"
-hitboxBtn.Font = Enum.Font.GothamBold
-hitboxBtn.TextSize = 18
-hitboxBtn.TextColor3 = Color3.new(0, 0, 0)
-hitboxBtn.Parent = frame
-
-local function toggleHitbox()
-    hitboxEnabled = not hitboxEnabled
-
-    if hitboxEnabled then
-        for _, npc in pairs(workspace:GetDescendants()) do
-            if npc:IsA("Model") and npc:FindFirstChild("Head") and npc:FindFirstChild("Humanoid") and npc.Humanoid.Health > 0 and not game.Players:GetPlayerFromCharacter(npc) then
-                local billboard = Instance.new("BillboardGui")
-                billboard.Name = "XurrascoHitbox"
-                billboard.Adornee = npc.Head
-                billboard.Size = UDim2.new(4, 0, 4, 0)
-                billboard.AlwaysOnTop = true
-                billboard.Parent = npc
-
-                local box = Instance.new("Frame")
-                box.Size = UDim2.new(1, 0, 1, 0)
-                box.BackgroundColor3 = Color3.new(1, 1, 0)
-                box.BackgroundTransparency = 0.3
-                box.BorderSizePixel = 2
-                box.BorderColor3 = Color3.new(1, 1, 0)
-                box.Parent = billboard
-
-                table.insert(hitboxes, billboard)
-            end
-        end
-    else
-        for _, gui in pairs(hitboxes) do
-            if gui and gui.Parent then
-                gui:Destroy()
-            end
-        end
-        table.clear(hitboxes)
-    end
-end
-
-hitboxBtn.MouseButton1Click:Connect(toggleHitbox)
-
--- Render loop
+-- Atualização do Aimbot e FOV
 runService.RenderStepped:Connect(function()
     if aimbotActive then
         aimbotNPC()
     end
-
     if fovCircle.Visible then
         fovCircle.Position = Vector2.new(camera.ViewportSize.X / 2, camera.ViewportSize.Y / 2)
+    end
+end)
+
+-- Atalhos de teclado
+userInput.InputBegan:Connect(function(input, processed)
+    if not processed then
+        if input.KeyCode == Enum.KeyCode.Q then
+            aimbotActive = not aimbotActive
+            fovCircle.Visible = aimbotActive
+            aimbotBtn.Text = aimbotActive and "🧠 Aimbot NPC [ON]" or "🧠 Aimbot NPC"
+        end
     end
 end)
