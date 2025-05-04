@@ -96,7 +96,7 @@ local function aimbotNPC()
     end
 end
 
--- Função para mostrar hitbox
+-- Função para mostrar hitboxes
 local function showHitboxes()
     -- Limpa as hitboxes anteriores
     for _, box in pairs(npcHitboxes) do
@@ -117,11 +117,25 @@ local function showHitboxes()
             local npcPosition = npc.Head.Position
             local screenPos, onScreen = camera:WorldToViewportPoint(npcPosition)
             if onScreen then
-                box.Size = Vector2.new(40, 40)  -- Tamanho da hitbox
+                box.Size = Vector2.new(80, 80)  -- Tamanho da hitbox para 2x
                 box.Position = Vector2.new(screenPos.X - box.Size.X / 2, screenPos.Y - box.Size.Y / 2)
                 table.insert(npcHitboxes, box)
             end
         end
+    end
+end
+
+-- Função 2x Hitbox
+local function toggleHitbox()
+    hitboxActive = not hitboxActive
+    if hitboxActive then
+        showHitboxes()
+    else
+        -- Remove hitboxes
+        for _, box in pairs(npcHitboxes) do
+            box:Remove()
+        end
+        npcHitboxes = {} -- Reset
     end
 end
 
@@ -151,19 +165,20 @@ userInput.InputBegan:Connect(function(input, processed)
     end
 end)
 
--- Função 2x Hitbox
-local function toggleHitbox()
-    hitboxActive = not hitboxActive
-    if hitboxActive then
-        showHitboxes()
-    else
-        -- Remove hitboxes
-        for _, box in pairs(npcHitboxes) do
-            box:Remove()
-        end
-        npcHitboxes = {} -- Reset
-    end
-end
+-- Botão 2x Hitbox
+local hitboxBtn = Instance.new("TextButton")
+hitboxBtn.Size = UDim2.new(0, 150, 0, 40)
+hitboxBtn.Position = UDim2.new(0.5, -75, 0, 110)
+hitboxBtn.BackgroundColor3 = Color3.fromRGB(255, 255, 0)
+hitboxBtn.Text = "2x Hitbox"
+hitboxBtn.Font = Enum.Font.GothamBold
+hitboxBtn.TextSize = 18
+hitboxBtn.TextColor3 = Color3.new(1, 1, 1)
+hitboxBtn.Parent = frame
+
+hitboxBtn.MouseButton1Click:Connect(function()
+    toggleHitbox()
+end)
 
 -- Botão Delet
 local deletBtn = Instance.new("TextButton")
