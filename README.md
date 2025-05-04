@@ -9,9 +9,6 @@ local userInput = game:GetService("UserInputService")
 local aimbotActive = false
 local fovRadius = 190
 local wallhackActive = false
-local targetMargin = 5  -- Margem de erro para a hitbox aumentada
-local maxAimbotDistance = 100  -- Distância máxima para o aimbot
-local projectileDamage = 10  -- Dano do projétil
 local hitboxMultiplier = 1  -- Controla o aumento da hitbox (inicializado em 1)
 local hitboxVisible = false  -- Controle de visibilidade da hitbox aumentada
 
@@ -70,55 +67,45 @@ title.Font = Enum.Font.GothamBold
 title.TextSize = 22
 title.Parent = frame
 
--- Função Aimbot NPC
-local function getClosestNPC()
-    local closest = nil
-    local shortest = math.huge
+-- Função para aumentar a hitbox de todos os NPCs
+local function increaseHitboxForAllNPCs()
+    for _, obj in pairs(workspace:GetDescendants()) do
+        if obj:IsA("Model") and obj:FindFirstChild("Humanoid") then
+            -- Aumentando o tamanho das partes principais (Head, HumanoidRootPart, etc)
+            local humanoid = obj:FindFirstChild("Humanoid")
+            local head = obj:FindFirstChild("Head")
+            local humanoidRootPart = obj:FindFirstChild("HumanoidRootPart")
 
-    for _, npc in pairs(workspace:GetDescendants()) do
-        if npc:IsA("Model") and npc:FindFirstChild("Head") and npc:FindFirstChild("Humanoid") and not game.Players:GetPlayerFromCharacter(npc) then
-            local headPos = npc.Head.Position
-            local screenPos, onScreen = camera:WorldToViewportPoint(headPos)
-            if onScreen then
-                local distance = (Vector2.new(screenPos.X, screenPos.Y) - Vector2.new(mouse.X, mouse.Y)).Magnitude
-                if distance < shortest and distance <= fovRadius then
-                    shortest = distance
-                    closest = npc.Head
+            if head then
+                head.Size = head.Size * hitboxMultiplier  -- Aumenta a hitbox da cabeça
+            end
+
+            if humanoidRootPart then
+                humanoidRootPart.Size = humanoidRootPart.Size * hitboxMultiplier  -- Aumenta a hitbox do corpo
+            end
+
+            -- Aumenta o tamanho das partes do corpo do NPC (caso haja outras partes, como braços, pernas)
+            for _, part in pairs(obj:GetChildren()) do
+                if part:IsA("Part") then
+                    part.Size = part.Size * hitboxMultiplier  -- Aumenta a hitbox das partes
                 end
             end
         end
     end
-
-    return closest
 end
 
-local function aimbotNPC()
-    local target = getClosestNPC()
-    if target then
-        camera.CFrame = CFrame.new(camera.CFrame.Position, target.Position)
-    end
-end
-
--- Função para disparar projétil com hitbox aumentada
-local function fireProjectile()
-    -- Tamanho do "alvo" (margem de erro)
-    local targetPosition = camera.CFrame.Position + camera.CFrame.LookVector * 50  -- Aumente o valor para mais distância
-    local enemies = {}  -- Para armazenar os inimigos atingidos
-
-    -- Desenhando a hitbox aumentada (caixa amarela) em torno dos NPCs atingidos
-    for _, obj in pairs(workspace:GetChildren()) do
-        if obj:IsA("Model") and obj:FindFirstChild("Head") and obj:FindFirstChild("Humanoid") and not game.Players:GetPlayerFromCharacter(obj) then
-            local headPosition = obj.Head.Position
-            local distance = (headPosition - targetPosition).Magnitude
-
-            -- Se o inimigo estiver dentro da margem do projétil (multiplicada pela hitbox)
-            if distance <= targetMargin * hitboxMultiplier then
-                -- Desenhar a hitbox como uma caixa amarela ao redor do NPC
-                local screenPos, onScreen = camera:WorldToViewportPoint(headPosition)
+-- Função para desenhar a hitbox
+local function drawHitboxForNPCs()
+    for _, obj in pairs(workspace:GetDescendants()) do
+        if obj:IsA("Model") and obj:FindFirstChild("Humanoid") then
+            local humanoidRootPart = obj:FindFirstChild("HumanoidRootPart")
+            if humanoidRootPart then
+                local screenPos, onScreen = camera:WorldToViewportPoint(humanoidRootPart.Position)
                 if onScreen then
+                    -- Desenhando a hitbox aumentada (caixa amarela) ao redor dos NPCs
                     local box = Drawing.new("Square")
-                    box.Position = Vector2.new(screenPos.X - targetMargin * hitboxMultiplier, screenPos.Y - targetMargin * hitboxMultiplier)
-                    box.Size = Vector2.new(targetMargin * 2 * hitboxMultiplier, targetMargin * 2 * hitboxMultiplier)
+                    box.Position = Vector2.new(screenPos.X - humanoidRootPart.Size.X / 2, screenPos.Y - humanoidRootPart.Size.Y / 2)
+                    box.Size = Vector2.new(humanoidRootPart.Size.X * hitboxMultiplier, humanoidRootPart.Size.Y * hitboxMultiplier)
                     box.Thickness = 2
                     box.Color = Color3.fromRGB(255, 255, 0)  -- Cor amarela
                     box.Filled = false
@@ -128,58 +115,10 @@ local function fireProjectile()
                     wait(0.2)
                     box.Visible = hitboxVisible
                 end
-
-                -- Aplicar dano ao inimigo
-                local humanoid = obj:FindFirstChild("Humanoid")
-                if humanoid then
-                    humanoid:TakeDamage(projectileDamage)  -- Ajuste o dano conforme necessário
-                    print("Inimigo atingido!")
-                end
             end
         end
     end
 end
-
--- Botão Aimbot NPC
-local aimbotBtn = Instance.new("TextButton")
-aimbotBtn.Size = UDim2.new(0, 150, 0, 40)
-aimbotBtn.Position = UDim2.new(0.5, -75, 0, 60)
-aimbotBtn.BackgroundColor3 = Color3.fromRGB(0, 0, 255)
-aimbotBtn.Text = "🧠 Aimbot NPC"
-aimbotBtn.Font = Enum.Font.GothamBold
-aimbotBtn.TextSize = 18
-aimbotBtn.TextColor3 = Color3.new(1, 1, 1)
-aimbotBtn.Parent = frame
-
-aimbotBtn.MouseButton1Click:Connect(function()
-    aimbotActive = not aimbotActive
-    fovCircle.Visible = aimbotActive
-    aimbotBtn.Text = aimbotActive and "🧠 Aimbot NPC [ON]" or "🧠 Aimbot NPC"
-end)
-
--- Tecla Q ativa/desativa Aimbot
-userInput.InputBegan:Connect(function(input, processed)
-    if not processed and input.KeyCode == Enum.KeyCode.Q then
-        aimbotActive = not aimbotActive
-        fovCircle.Visible = aimbotActive
-        aimbotBtn.Text = aimbotActive and "🧠 Aimbot NPC [ON]" or "🧠 Aimbot NPC"
-    end
-end)
-
--- Tecla H ativa/desativa o aumento da hitbox e a visualização
-userInput.InputBegan:Connect(function(input, processed)
-    if not processed and input.KeyCode == Enum.KeyCode.H then
-        if hitboxMultiplier == 1 then
-            hitboxMultiplier = 2  -- Aumenta a hitbox
-            hitboxVisible = true  -- Torna a hitbox visível
-            print("Hitbox aumentada e visível!")
-        else
-            hitboxMultiplier = 1  -- Reseta para o tamanho original
-            hitboxVisible = false  -- Torna a hitbox invisível
-            print("Hitbox normalizada e invisível!")
-        end
-    end
-end)
 
 -- Botão 2x Hitbox
 local hitboxBtn = Instance.new("TextButton")
@@ -197,12 +136,29 @@ hitboxBtn.MouseButton1Click:Connect(function()
         hitboxMultiplier = 2  -- Aumenta a hitbox
         hitboxVisible = true  -- Torna a hitbox visível
         hitboxBtn.Text = "2x Hitbox [ON]"
-        print("Hitbox aumentada e visível!")
+        increaseHitboxForAllNPCs()  -- Aumenta a hitbox de todos os NPCs
+        print("Hitbox aumentada de todos os NPCs!")
     else
         hitboxMultiplier = 1  -- Reseta para o tamanho original
         hitboxVisible = false  -- Torna a hitbox invisível
         hitboxBtn.Text = "2x Hitbox"
-        print("Hitbox normalizada e invisível!")
+        print("Hitbox normalizada de todos os NPCs!")
+    end
+end)
+
+-- Tecla H ativa/desativa o aumento da hitbox de todos os NPCs
+userInput.InputBegan:Connect(function(input, processed)
+    if not processed and input.KeyCode == Enum.KeyCode.H then
+        if hitboxMultiplier == 1 then
+            hitboxMultiplier = 2  -- Aumenta a hitbox
+            hitboxVisible = true  -- Torna a hitbox visível
+            increaseHitboxForAllNPCs()  -- Aumenta a hitbox de todos os NPCs
+            print("Hitbox aumentada de todos os NPCs!")
+        else
+            hitboxMultiplier = 1  -- Reseta para o tamanho original
+            hitboxVisible = false  -- Torna a hitbox invisível
+            print("Hitbox normalizada de todos os NPCs!")
+        end
     end
 end)
 
@@ -227,15 +183,11 @@ end)
 
 -- Atualização da mira, FOV e hitbox
 runService.RenderStepped:Connect(function()
-    if aimbotActive then
-        aimbotNPC()
+    if hitboxVisible then
+        drawHitboxForNPCs()  -- Desenha a hitbox de todos os NPCs
     end
 
     if fovCircle.Visible then
         fovCircle.Position = Vector2.new(camera.ViewportSize.X / 2, camera.ViewportSize.Y / 2)
-    end
-
-    if hitboxVisible then
-        fireProjectile()  -- Ativa a função de disparo com a hitbox aumentada
     end
 end)
