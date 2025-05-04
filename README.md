@@ -9,7 +9,10 @@ local userInput = game:GetService("UserInputService")
 local aimbotActive = false
 local fovRadius = 190
 local hitboxMultiplier = 2  -- Tamanho da hitbox
-local hitboxVisible = false  -- Controle de visibilidade da hitbox aumentada
+local hitboxVisible = false  -- Controle de visibilidade da hitbox
+
+-- Armazenar as caixas de colisão
+local hitboxes = {}
 
 -- Raycast parameters
 local rayParams = RaycastParams.new()
@@ -68,7 +71,13 @@ title.Parent = frame
 
 -- Função para desenhar a hitbox aumentada
 local function drawHitboxForNPCs()
-    -- Remover qualquer caixa de colisão existente antes de desenhar uma nova
+    -- Remover caixas de colisão antigas
+    for _, box in pairs(hitboxes) do
+        box.Visible = false  -- Tornar invisível antes de removê-la
+    end
+    hitboxes = {}  -- Limpar a lista de caixas de colisão
+
+    -- Desenhar nova caixa de colisão para cada NPC
     for _, obj in pairs(workspace:GetDescendants()) do
         if obj:IsA("Model") and obj:FindFirstChild("Humanoid") then
             local humanoidRootPart = obj:FindFirstChild("HumanoidRootPart")
@@ -82,11 +91,10 @@ local function drawHitboxForNPCs()
                     box.Thickness = 2
                     box.Color = Color3.fromRGB(255, 255, 0)  -- Cor amarela
                     box.Filled = false
-                    box.Visible = hitboxVisible  -- Agora, a visibilidade é controlada pela variável 'hitboxVisible'
+                    box.Visible = hitboxVisible  -- A visibilidade é controlada pela variável 'hitboxVisible'
 
-                    -- Atrasar a remoção da hitbox para que seja visível por um tempo
-                    wait(0.2)
-                    box.Visible = hitboxVisible
+                    -- Armazenar a caixa de colisão para removê-la futuramente
+                    table.insert(hitboxes, box)
                 end
             end
         end
