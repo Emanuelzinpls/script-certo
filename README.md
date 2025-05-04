@@ -123,11 +123,15 @@ game:GetService("RunService").RenderStepped:Connect(function()
     end
 end)
 
--- Função para deletar todos os códigos e desativar funções
+-- Função para deletar todos os códigos, desativar funções e remover o painel
 local function deleteScript()
     aimbotActive = false  -- Desativa o Aimbot NPC
     aimbotButton.Text = "Ativar Aimbot NPC"  -- Atualiza o texto do botão
     print("Funções desativadas e códigos removidos.")
+    
+    -- Remover o painel do jogo
+    gui:Destroy()  -- Remove o painel e todos os seus elementos
+    
     -- Se houver mais coisas a remover ou resetar, coloque aqui
 end
 
@@ -144,5 +148,5 @@ deleteButton.Parent = frame
 
 -- Função para deletar quando o botão for pressionado
 deleteButton.MouseButton1Click:Connect(function()
-    deleteScript()  -- Chama a função para deletar os scripts e desativar as funções
+    deleteScript()  -- Chama a função para deletar os scripts, desativar as funções e remover o painel
 end)
