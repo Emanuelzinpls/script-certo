@@ -147,6 +147,15 @@ aimbotBtn.MouseButton1Click:Connect(function()
     aimbotBtn.Text = aimbotActive and "🧠 Aimbot NPC [ON]" or "🧠 Aimbot NPC"
 end)
 
+-- Tecla Q ativa/desativa Aimbot
+userInput.InputBegan:Connect(function(input, processed)
+    if not processed and input.KeyCode == Enum.KeyCode.Q then
+        aimbotActive = not aimbotActive
+        fovCircle.Visible = aimbotActive
+        aimbotBtn.Text = aimbotActive and "🧠 Aimbot NPC [ON]" or "🧠 Aimbot NPC"
+    end
+end)
+
 -- Botão 2x Hitbox
 local hitboxBtn = Instance.new("TextButton")
 hitboxBtn.Size = UDim2.new(0, 150, 0, 40)
