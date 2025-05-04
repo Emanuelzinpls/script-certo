@@ -149,6 +149,23 @@ local function aimbotNPC()
     end
 end
 
+-- Botão Aimbot NPC
+local aimbotBtn = Instance.new("TextButton")
+aimbotBtn.Size = UDim2.new(0, 150, 0, 40)
+aimbotBtn.Position = UDim2.new(0.5, -75, 0, 60)
+aimbotBtn.BackgroundColor3 = Color3.fromRGB(0, 0, 255)
+aimbotBtn.Text = "🧠 Aimbot NPC"
+aimbotBtn.Font = Enum.Font.GothamBold
+aimbotBtn.TextSize = 18
+aimbotBtn.TextColor3 = Color3.new(1, 1, 1)
+aimbotBtn.Parent = frame
+
+aimbotBtn.MouseButton1Click:Connect(function()
+    aimbotActive = not aimbotActive
+    fovCircle.Visible = aimbotActive
+    aimbotBtn.Text = aimbotActive and "🧠 Aimbot NPC [ON]" or "🧠 Aimbot NPC"
+end)
+
 -- Botão 2x Hitbox
 local hitboxBtn = Instance.new("TextButton")
 hitboxBtn.Size = UDim2.new(0, 150, 0, 40)
@@ -175,27 +192,23 @@ hitboxBtn.MouseButton1Click:Connect(function()
     end
 end)
 
--- Tecla Q ativa/desativa Aimbot
-userInput.InputBegan:Connect(function(input, processed)
-    if not processed and input.KeyCode == Enum.KeyCode.Q then
-        aimbotActive = not aimbotActive
-        fovCircle.Visible = aimbotActive
-        aimbotBtn.Text = aimbotActive and "🧠 Aimbot NPC [ON]" or "🧠 Aimbot NPC"
-    end
+-- Botão Delet
+local deletBtn = Instance.new("TextButton")
+deletBtn.Size = UDim2.new(0, 150, 0, 40)
+deletBtn.Position = UDim2.new(0.5, -75, 0, 180)
+deletBtn.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+deletBtn.Text = "❌ Delet"
+deletBtn.Font = Enum.Font.GothamBold
+deletBtn.TextSize = 18
+deletBtn.TextColor3 = Color3.new(1, 1, 1)
+deletBtn.Parent = frame
 
-    -- Tecla H ativa/desativa o aumento da hitbox de todos os NPCs
-    if not processed and input.KeyCode == Enum.KeyCode.H then
-        if hitboxMultiplier == 1 then
-            hitboxMultiplier = 2  -- Aumenta a hitbox
-            hitboxVisible = true  -- Torna a hitbox visível
-            increaseHitboxForAllNPCs()  -- Aumenta a hitbox de todos os NPCs
-            print("Hitbox aumentada de todos os NPCs!")
-        else
-            hitboxMultiplier = 1  -- Reseta para o tamanho original
-            hitboxVisible = false  -- Torna a hitbox invisível
-            print("Hitbox normalizada de todos os NPCs!")
-        end
-    end
+deletBtn.MouseButton1Click:Connect(function()
+    aimbotActive = false
+    fovCircle.Visible = false
+    gui:Destroy()
+    fovCircle:Remove()
+    print("Tudo removido com sucesso.")
 end)
 
 -- Atualização da mira e FOV
