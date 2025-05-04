@@ -84,10 +84,14 @@ local function drawHitboxForNPCs()
             if humanoidRootPart then
                 local screenPos, onScreen = camera:WorldToViewportPoint(humanoidRootPart.Position)
                 if onScreen then
+                    -- Calculando o tamanho da hitbox
+                    local sizeX = humanoidRootPart.Size.X * hitboxMultiplier
+                    local sizeY = humanoidRootPart.Size.Y * hitboxMultiplier
+                    
                     -- Desenhando a hitbox aumentada (caixa amarela) ao redor dos NPCs
                     local box = Drawing.new("Square")
-                    box.Position = Vector2.new(screenPos.X - humanoidRootPart.Size.X / 2 * hitboxMultiplier, screenPos.Y - humanoidRootPart.Size.Y / 2 * hitboxMultiplier)
-                    box.Size = Vector2.new(humanoidRootPart.Size.X * hitboxMultiplier, humanoidRootPart.Size.Y * hitboxMultiplier)
+                    box.Position = Vector2.new(screenPos.X - sizeX / 2, screenPos.Y - sizeY / 2)  -- Posiciona a caixa corretamente
+                    box.Size = Vector2.new(sizeX, sizeY)
                     box.Thickness = 2
                     box.Color = Color3.fromRGB(255, 255, 0)  -- Cor amarela
                     box.Filled = false
