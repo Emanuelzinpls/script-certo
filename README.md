@@ -48,7 +48,18 @@ local function aimbotNpc()
 
     -- Mira no NPC mais próximo
     if closestTarget then
-        camera.CFrame = CFrame.new(camera.CFrame.Position, closestTarget.Position)
+        -- Ajusta a CFrame da câmera para mirar na cabeça do NPC
+        local humanoidRootPart = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+        if humanoidRootPart then
+            -- Suaviza a transição para evitar tremores
+            local targetPosition = closestTarget.Position
+            local currentCameraPos = camera.CFrame.Position
+            local direction = (targetPosition - currentCameraPos).unit
+            local smoothCameraPos = currentCameraPos + direction * 0.1  -- Suaviza a câmera
+
+            -- Define a nova CFrame da câmera suavemente
+            camera.CFrame = CFrame.new(smoothCameraPos, targetPosition)
+        end
     end
 end
 
