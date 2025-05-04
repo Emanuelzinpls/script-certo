@@ -1,4 +1,4 @@
--- Xurrasco Panel com Aimbot NPC, FOV visível, tecla Q, botão Delet, 2x Hitbox e visualização da hitbox em amarelo
+-- Xurrasco Panel com Aimbot NPC, FOV visível, tecla Q e botão Delet
 local player = game.Players.LocalPlayer
 local camera = workspace.CurrentCamera
 local mouse = player:GetMouse()
@@ -8,11 +8,7 @@ local userInput = game:GetService("UserInputService")
 -- Variáveis de controle
 local aimbotActive = false
 local fovRadius = 190
-local hitboxMultiplier = 2  -- Tamanho da hitbox
-local hitboxVisible = false  -- Controle de visibilidade da hitbox
-
--- Armazenar as caixas de colisão
-local hitboxes = {}
+local wallhackActive = false
 
 -- Raycast parameters
 local rayParams = RaycastParams.new()
@@ -69,43 +65,6 @@ title.Font = Enum.Font.GothamBold
 title.TextSize = 22
 title.Parent = frame
 
--- Função para desenhar a hitbox aumentada
-local function drawHitboxForNPCs()
-    -- Remover caixas de colisão antigas
-    for _, box in pairs(hitboxes) do
-        box.Visible = false  -- Tornar invisível antes de removê-la
-    end
-    hitboxes = {}  -- Limpar a lista de caixas de colisão
-
-    -- Desenhar nova caixa de colisão para cada NPC
-    for _, obj in pairs(workspace:GetDescendants()) do
-        if obj:IsA("Model") and obj:FindFirstChild("Humanoid") then
-            local humanoidRootPart = obj:FindFirstChild("HumanoidRootPart")
-            if humanoidRootPart then
-                -- Calculando o tamanho da hitbox
-                local sizeX = humanoidRootPart.Size.X * hitboxMultiplier
-                local sizeY = humanoidRootPart.Size.Y * hitboxMultiplier
-                
-                -- Calcular a posição da hitbox na tela
-                local screenPos, onScreen = camera:WorldToViewportPoint(humanoidRootPart.Position)
-                if onScreen then
-                    -- Desenhando a hitbox aumentada (caixa amarela) ao redor dos NPCs
-                    local box = Drawing.new("Square")
-                    box.Position = Vector2.new(screenPos.X - sizeX / 2, screenPos.Y - sizeY / 2)  -- Posiciona a caixa corretamente
-                    box.Size = Vector2.new(sizeX, sizeY)
-                    box.Thickness = 2
-                    box.Color = Color3.fromRGB(255, 255, 0)  -- Cor amarela
-                    box.Filled = false
-                    box.Visible = hitboxVisible  -- A visibilidade é controlada pela variável 'hitboxVisible'
-
-                    -- Armazenar a caixa de colisão para removê-la futuramente
-                    table.insert(hitboxes, box)
-                end
-            end
-        end
-    end
-end
-
 -- Função Aimbot NPC
 local function getClosestNPC()
     local closest = nil
@@ -113,13 +72,18 @@ local function getClosestNPC()
 
     for _, npc in pairs(workspace:GetDescendants()) do
         if npc:IsA("Model") and npc:FindFirstChild("Head") and npc:FindFirstChild("Humanoid") and not game.Players:GetPlayerFromCharacter(npc) then
-            local headPos = npc.Head.Position
-            local screenPos, onScreen = camera:WorldToViewportPoint(headPos)
-            if onScreen then
-                local distance = (Vector2.new(screenPos.X, screenPos.Y) - Vector2.new(mouse.X, mouse.Y)).Magnitude
-                if distance < shortest and distance <= fovRadius then
-                    shortest = distance
-                    closest = npc.Head
+            local humanoid = npc:FindFirstChild("Humanoid")
+            
+            -- Verifica se o NPC está vivo
+            if humanoid and humanoid.Health > 0 then
+                local headPos = npc.Head.Position
+                local screenPos, onScreen = camera:WorldToViewportPoint(headPos)
+                if onScreen then
+                    local distance = (Vector2.new(screenPos.X, screenPos.Y) - Vector2.new(mouse.X, mouse.Y)).Magnitude
+                    if distance < shortest and distance <= fovRadius then
+                        shortest = distance
+                        closest = npc.Head
+                    end
                 end
             end
         end
@@ -161,26 +125,6 @@ userInput.InputBegan:Connect(function(input, processed)
     end
 end)
 
--- Botão 2x Hitbox
-local hitboxBtn = Instance.new("TextButton")
-hitboxBtn.Size = UDim2.new(0, 150, 0, 40)
-hitboxBtn.Position = UDim2.new(0.5, -75, 0, 120)
-hitboxBtn.BackgroundColor3 = Color3.fromRGB(255, 255, 0)
-hitboxBtn.Text = "2x Hitbox"
-hitboxBtn.Font = Enum.Font.GothamBold
-hitboxBtn.TextSize = 18
-hitboxBtn.TextColor3 = Color3.new(1, 1, 1)
-hitboxBtn.Parent = frame
-
-hitboxBtn.MouseButton1Click:Connect(function()
-    hitboxVisible = not hitboxVisible  -- Alterna a visibilidade da hitbox
-    if hitboxVisible then
-        hitboxBtn.Text = "2x Hitbox [ON]"
-    else
-        hitboxBtn.Text = "2x Hitbox"
-    end
-end)
-
 -- Botão Delet
 local deletBtn = Instance.new("TextButton")
 deletBtn.Size = UDim2.new(0, 150, 0, 40)
@@ -200,7 +144,7 @@ deletBtn.MouseButton1Click:Connect(function()
     print("Tudo removido com sucesso.")
 end)
 
--- Atualização da mira, FOV e hitbox
+-- Atualização da mira e FOV
 runService.RenderStepped:Connect(function()
     if aimbotActive then
         aimbotNPC()
@@ -208,10 +152,5 @@ runService.RenderStepped:Connect(function()
 
     if fovCircle.Visible then
         fovCircle.Position = Vector2.new(camera.ViewportSize.X / 2, camera.ViewportSize.Y / 2)
-    end
-
-    -- Desenha a hitbox aumentada se estiver ativada
-    if hitboxVisible then
-        drawHitboxForNPCs()
     end
 end)
