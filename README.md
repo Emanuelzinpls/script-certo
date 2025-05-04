@@ -1,4 +1,4 @@
--- Xurrasco Panel com Aimbot NPC, FOV visível, tecla Q e botão Delet
+-- Xurrasco Panel com Aimbot NPC, FOV visível, tecla Q, botão Delet e 2x Hitbox
 local player = game.Players.LocalPlayer
 local camera = workspace.CurrentCamera
 local mouse = player:GetMouse()
@@ -9,6 +9,9 @@ local userInput = game:GetService("UserInputService")
 local aimbotActive = false
 local fovRadius = 190
 local wallhackActive = false
+local hitboxActive = false
+local hitboxMultiplier = 1 -- Multiplicador para o tamanho da hitbox (2x)
+local hitboxes = {} -- Tabela para armazenar as hitboxes desenhadas
 
 -- Raycast parameters
 local rayParams = RaycastParams.new()
@@ -144,6 +147,49 @@ deletBtn.MouseButton1Click:Connect(function()
     print("Tudo removido com sucesso.")
 end)
 
+-- Função 2x Hitbox
+local function drawHitbox(npc)
+    if hitboxActive then
+        if npc:FindFirstChild("Head") then
+            local headPos = npc.Head.Position
+            local hitboxSize = npc.Head.Size * hitboxMultiplier
+            local hitboxBox = Drawing.new("Square")
+            hitboxBox.Position = camera:WorldToViewportPoint(headPos - Vector3.new(hitboxSize.X/2, hitboxSize.Y/2, hitboxSize.Z/2))
+            hitboxBox.Size = Vector2.new(hitboxSize.X, hitboxSize.Y)
+            hitboxBox.Color = Color3.fromRGB(255, 255, 0)
+            hitboxBox.Thickness = 2
+            hitboxBox.Filled = false
+            table.insert(hitboxes, hitboxBox)
+        end
+    end
+end
+
+local function clearHitboxes()
+    for _, box in ipairs(hitboxes) do
+        box:Remove()
+    end
+    hitboxes = {}
+end
+
+-- Botão 2x Hitbox
+local hitboxBtn = Instance.new("TextButton")
+hitboxBtn.Size = UDim2.new(0, 150, 0, 40)
+hitboxBtn.Position = UDim2.new(0.5, -75, 0, 120)
+hitboxBtn.BackgroundColor3 = Color3.fromRGB(255, 255, 0)
+hitboxBtn.Text = "2x Hitbox"
+hitboxBtn.Font = Enum.Font.GothamBold
+hitboxBtn.TextSize = 18
+hitboxBtn.TextColor3 = Color3.new(1, 1, 1)
+hitboxBtn.Parent = frame
+
+hitboxBtn.MouseButton1Click:Connect(function()
+    hitboxActive = not hitboxActive
+    hitboxBtn.Text = hitboxActive and "2x Hitbox [ON]" or "2x Hitbox"
+    if not hitboxActive then
+        clearHitboxes() -- Limpa as hitboxes
+    end
+end)
+
 -- Atualização da mira e FOV
 runService.RenderStepped:Connect(function()
     if aimbotActive then
@@ -152,5 +198,12 @@ runService.RenderStepped:Connect(function()
 
     if fovCircle.Visible then
         fovCircle.Position = Vector2.new(camera.ViewportSize.X / 2, camera.ViewportSize.Y / 2)
+    end
+
+    -- Desenhar hitboxes para NPCs
+    for _, npc in pairs(workspace:GetDescendants()) do
+        if npc:IsA("Model") and npc:FindFirstChild("Humanoid") then
+            drawHitbox(npc)
+        end
     end
 end)
