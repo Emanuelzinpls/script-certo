@@ -73,14 +73,18 @@ local function getClosestNPC()
 
     for _, npc in pairs(workspace:GetDescendants()) do
         if npc:IsA("Model") and npc:FindFirstChild("Head") and npc:FindFirstChild("Humanoid") and not game.Players:GetPlayerFromCharacter(npc) then
-            local headPos = npc.Head.Position
-            local screenPos, onScreen = camera:WorldToViewportPoint(headPos)
-            local distance = (Vector2.new(screenPos.X, screenPos.Y) - Vector2.new(mouse.X, mouse.Y)).Magnitude
-            -- Verifica a distância para garantir que o NPC esteja dentro da distância máxima
-            local worldDistance = (camera.CFrame.Position - npc.Head.Position).Magnitude
-            if onScreen and worldDistance <= maxAimbotDistance and distance < shortest then
-                shortest = distance
-                closest = npc.Head
+            local humanoid = npc:FindFirstChild("Humanoid")
+            -- Verifica se o humanoide está vivo
+            if humanoid and humanoid.Health > 0 then
+                local headPos = npc.Head.Position
+                local screenPos, onScreen = camera:WorldToViewportPoint(headPos)
+                local distance = (Vector2.new(screenPos.X, screenPos.Y) - Vector2.new(mouse.X, mouse.Y)).Magnitude
+                -- Verifica a distância para garantir que o NPC esteja dentro da distância máxima
+                local worldDistance = (camera.CFrame.Position - npc.Head.Position).Magnitude
+                if onScreen and worldDistance <= maxAimbotDistance and distance < shortest then
+                    shortest = distance
+                    closest = npc.Head
+                end
             end
         end
     end
